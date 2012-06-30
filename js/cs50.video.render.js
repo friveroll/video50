@@ -70,46 +70,6 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
 };
 
 /**
- * Renderer for a question with a numeric answer
- *
- * @param container Container for question to be rendered within
- * @param data Question data
- * @param callback Response callback 
- *
- */
-CS50.Video.Render.Numeric = function(container, data, callback) {
-	// if no tolerance given, then assume exact answer
-	data.tolerance = (data.tolerance === undefined) ? 1 : data.tolerance;
-
-	// render free response
-	var $input = CS50.Video.Render.FreeResponse(container, data, callback);
-
-	// swap out event handler
-	var $container = $(container);
-	$container.off('click', '.btn-submit');
-
-	// when submit is pressed, check answer
-	$container.on('click', '.btn-submit', function(e) {
-		var val = parseFloat($input.val());
-
-		// a correct answer is within the bounds established by the tolerance
-		if (isNaN(val))
-			var $message = $('<div class="alert alert-error">The answer must be a number, <strong>try again!</strong></div>');
-		else if (val <= data.answer + data.answer * data.tolerance && val >= data.answer - data.answer * data.tolerance)
-			var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');		
-		else
-			var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
-
-		// display message
-		$container.find('.alert').remove();
-		$message.hide().appendTo($container).fadeIn('fast');
-
-		e.preventDefault();
-		return false;
-	});
-};
-
-/**
  * Renderer for a multiple choice question
  *
  * @param container Container for question to be rendered within
@@ -161,6 +121,46 @@ CS50.Video.Render.MultipleChoice = function(container, data, callback) {
 		if (!$submit.is(':visible')) {
 			$submit.fadeIn('fast');
 		}
+	});
+};
+
+/**
+ * Renderer for a question with a numeric answer
+ *
+ * @param container Container for question to be rendered within
+ * @param data Question data
+ * @param callback Response callback 
+ *
+ */
+CS50.Video.Render.Numeric = function(container, data, callback) {
+	// if no tolerance given, then assume exact answer
+	data.tolerance = (data.tolerance === undefined) ? 1 : data.tolerance;
+
+	// render free response
+	var $input = CS50.Video.Render.FreeResponse(container, data, callback);
+
+	// swap out event handler
+	var $container = $(container);
+	$container.off('click', '.btn-submit');
+
+	// when submit is pressed, check answer
+	$container.on('click', '.btn-submit', function(e) {
+		var val = parseFloat($input.val());
+
+		// a correct answer is within the bounds established by the tolerance
+		if (isNaN(val))
+			var $message = $('<div class="alert alert-error">The answer must be a number, <strong>try again!</strong></div>');
+		else if (val <= data.answer + data.answer * data.tolerance && val >= data.answer - data.answer * data.tolerance)
+			var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');		
+		else
+			var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+
+		// display message
+		$container.find('.alert').remove();
+		$message.hide().appendTo($container).fadeIn('fast');
+
+		e.preventDefault();
+		return false;
 	});
 };
 

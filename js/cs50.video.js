@@ -64,6 +64,8 @@ CS50.Video = function(options) {
 
 		notifications: ' \
 			<div class="video50-notifications"> \
+				<input id="video50-notifications-auto" type="checkbox" /> \
+				<label for="video50-notifications-auto">Automatically go to new questions</label> \
 				<table class="table table-bordered table-striped"> \
 					<thead> \
 						<tr> \
@@ -86,8 +88,12 @@ CS50.Video = function(options) {
 		',
 
 		transcript: ' \
-			<div class="video50-transcript-container"> \
-				<div class="video50-transcript"> \
+			<div class="video50-transcript"> \
+				<input id="video50-transcript-auto" type="checkbox" checked="checked" /> \
+				<label for="video50-transcript-auto">Automatically scroll transcript</label> \
+				<div class="video50-transcript-container"> \
+					<div class="video50-transcript-text"> \
+					</div> \
 				</div> \
 			</div> \
 		'
@@ -109,6 +115,10 @@ CS50.Video = function(options) {
  *
  */
 CS50.Video.prototype.checkQuestionAvailable = function() {
+	// make sure notifications container is given
+	if (!this.options.notificationsContainer)
+		return;
+
 	var player = this.player;
 	var $container = $(this.options.notificationsContainer).find('tbody');
 
@@ -119,12 +129,21 @@ CS50.Video.prototype.checkQuestionAvailable = function() {
 		if (e.timecode == Math.floor(player.getCurrentTime()) && 
 				!$container.find('tr[data-question-id="' + e.question.id + '"]').length) {
 
-			// put question at the top of the list of available questions
-			$container.prepend(me.templates.notification({
-				question: e
-			})).find('[rel=tooltip]').tooltip({
-				placement: 'right'
-			});
+			// don't take both actions on the same question
+			if (me.currentQuestion != e.question.id) {
+				// automatically go to the new question if user checked that box
+				if ($(me.options.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
+					me.showQuestion(e.question.id)
+
+				// put question at the top of the list of available questions
+				else {
+					$container.prepend(me.templates.notification({
+						question: e
+					})).find('[rel=tooltip]').tooltip({
+						placement: 'right'
+					});
+				}
+			}
 		}
 	})
 };
@@ -222,7 +241,7 @@ CS50.Video.prototype.loadSrt = function() {
 			// if transcript container is given, then build transcript
 			if (me.options.transcriptContainer) {
 				$(me.options.transcriptContainer).append(me.templates.transcript());
-				var $container = $(me.options.transcriptContainer).find('.video50-transcript');
+				var $container = $(me.options.transcriptContainer).find('.video50-transcript-text');
 
 				// iterate over each timecode
 				var n = timecodes.length;
@@ -286,6 +305,9 @@ CS50.Video.prototype.showQuestion = function(id) {
 	var question = _.find(this.options.questions, function(e) { return e.question.id == id; });
 
 	if (question) {
+		// keep track of the current question
+		this.currentQuestion = id;
+
 		// flip video over to display question
 		if (question.mode == CS50.Video.QuestionMode.FLIP) {
 			// stop video so we can think, think, thiiiiiink
@@ -355,9 +377,9 @@ CS50.Video.prototype.updateTranscriptHighlight = function() {
 		$active.addClass('highlight');
 
 		// put the current element in the middle of the transcript if user is not scrolling
-		if (!this.disableTranscriptAutoSeek) {
+		if (!this.disableTranscriptAutoSeek && $container.find('#video50-transcript-auto').is(':checked')) {
 			var top = $active.position().top - parseInt($container.height() / 2);
 			$container.find('.video50-transcript-container').scrollTop(top);
 		}
 	}
-}
+};

@@ -82,6 +82,10 @@
 .video50-question {
     background: #fafafa;
     border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.flip-question-container {
     border-top: none;
     -webkit-border-bottom-right-radius: 4px;
     -webkit-border-bottom-left-radius: 4px;
@@ -116,6 +120,15 @@
 
 .video50-question .btn-show-video {
     margin-left: 10px;
+}
+
+.video50-question .alert {
+    margin-top: 10px;
+}
+
+.video50-question .close {
+    position: absolute;
+    right: 5px;
 }
 
 .video50-transcript-container {

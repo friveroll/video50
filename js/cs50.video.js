@@ -23,12 +23,19 @@ CS50.Video = function(options) {
 	this.options.height = (options.height === undefined) ? 360 : options.height;
 	this.options.questions = (options.questions === undefined) ? [] : options.questions;
 	this.options.srt = (options.srt === undefined) ? null : options.srt;
-	this.options.swf = (options.swf === undefined) ? 'swf/flashmediaelement' : options.swf;
+	this.options.swf = (options.swf === undefined) ? './flashmediaelement.swf' : options.swf;
 	this.options.title = (options.title === undefined) ? '' : options.title;
 	this.options.width = (options.width === undefined) ? 640 : options.width;
 
 	// templates for plugin
-	template_html = {
+	templateHtml = {
+		panelQuestion: ' \
+			<div class="video50-question"> \
+				<button type="button" class="close">&times;</button> \
+				<div class="question-content"></div> \
+			</div> \
+		',
+
 		player: ' \
 			<div class="video50-player" style="width: <%= width %>px; height: <%= 38 + height %>px"> \
 				<div class="player-navbar"> \
@@ -88,8 +95,8 @@ CS50.Video = function(options) {
 
 	// compile templates
     this.templates = {};
-    for (var template in template_html)
-        this.templates[template] = _.template(template_html[template]);
+    for (var template in templateHtml)
+        this.templates[template] = _.template(templateHtml[template]);
 
     // instantiate video
 	this.createPlayer();
@@ -141,11 +148,8 @@ CS50.Video.prototype.createPlayer = function() {
 	// create video player
 	var me = this;
 	this.player = new MediaElementPlayer(this.options.playerContainer + ' .video-player', {
-		flashName: 'lib/flashmediaelement.swf',
-		silverlightName: 'lib/silverlightmediaelement.xap',
 		timerRate: 500,
-
-		success: function (player, dom) { 
+		success: function (player, dom) {
 			// event handler for video moving forward
 			player.addEventListener('timeupdate', function(e) {
 				// check if a new question is available
@@ -279,14 +283,15 @@ CS50.Video.prototype.showQuestion = function(id) {
 	var question = _.find(this.options.questions, function(e) { return e.question.id == id; });
 
 	if (question) {
-		// stop video so we can think, think, thiiiiiink
-		this.player.pause();
+		// flip video over to display question
+		if (question.mode == CS50.Video.QuestionMode.FLIP) {
+			// stop video so we can think, think, thiiiiiink
+			this.player.pause();
 
-		if (question.mode == 'flip') {
-			// clear previous question contents
+			// clear previous question contents and events
 			var player = $(this.options.playerContainer);
 			var $container = $(this.options.playerContainer).find('.flip-question-container .question-content');
-			$container.empty();
+			$container.empty().off();
 
 			// render question
 			question.question.render($container, question.question, CS50.Video.renderCallback);
@@ -299,6 +304,24 @@ CS50.Video.prototype.showQuestion = function(id) {
 			setTimeout(function() {
 				player.find('.btn-back').show();
 			}, 100);
+		}
+
+		// display question in the specified panel while video plays
+		else if (question.mode == CS50.Video.QuestionMode.PANEL) {
+			// clear previous question contents and events
+			var $container = $(this.options.questionContainer);
+			$container.empty().off();
+
+			// render question
+			$container.hide().html(this.templates.panelQuestion()).fadeIn('fast');
+			question.question.render($container.find('.question-content'), question.question, CS50.Video.renderCallback);
+
+			// when x in top-right corner is clicked, remove the question
+			$container.on('click', '.close', function() {
+				$container.find('.video50-question').fadeOut('fast', function() {
+					$(this).remove();
+				});
+			});
 		}
 	}
 };

@@ -16,7 +16,7 @@
 			var questions = [
 				{
 					timecode: 0,
-					mode: 'flip',
+					mode: CS50.Video.QuestionMode.PANEL,
 					question: {
 						id: 0,
 						render: CS50.Video.Render.MultipleChoice,
@@ -28,7 +28,7 @@
 				},
 				{
 					timecode: 2,
-					mode: 'flip',
+					mode: CS50.Video.QuestionMode.FLIP,
 					question: {
 						id: 1,
 						render: CS50.Video.Render.MultipleChoice,
@@ -37,8 +37,18 @@
 						question: 'How many TFs are there?',
 						tags: ['PHP', 'MySQL']
 					}
+				},
+				{
+					timecode: 0,
+					mode: CS50.Video.QuestionMode.FLIP,
+					question: {
+						id: 2,
+						render: CS50.Video.Render.FreeResponse,
+						answer: /^very$/i,
+						question: 'How awesome is Tommy?',
+						tags: ['JavaScript', 'DOM']
+					}
 				}
-
 			];
 
 			$(function() {
@@ -47,6 +57,8 @@
 					notificationsContainer: '#questions',
 					playerContainer: '#video',
 					questions: questions,
+					questionContainer: '#question',
+					srt: 'week0w.srt',
 					title: 'Lecture 0: Wednesday',
 					transcriptContainer: '#transcript',
 					video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
@@ -67,5 +79,6 @@
 		</table>
 
 		<div id="questions"></div>
+		<div id="question"></div>
 	</body>
 </html>

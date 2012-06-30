@@ -31,7 +31,7 @@ CS50.Video = function(options) {
 	templateHtml = {
 		panelQuestion: ' \
 			<div class="video50-question"> \
-				<button type="button" class="close">&times;</button> \
+				<button type="button" class="panel-close close">&times;</button> \
 				<div class="question-content"></div> \
 			</div> \
 		',
@@ -174,7 +174,10 @@ CS50.Video.prototype.createPlayer = function() {
 		me.player.play();
 		$container.find('.flip-container').removeClass('flipped');
 
-		// fade video back in during flip
+		// remove input
+		$('.video50-txt-answer').remove();
+
+		// fade video back in while flip is occurring for smoothness
 		setTimeout(function() {
 			$container.find('.video-container').fadeIn('medium');
 		}, 500);
@@ -288,6 +291,9 @@ CS50.Video.prototype.showQuestion = function(id) {
 			// stop video so we can think, think, thiiiiiink
 			this.player.pause();
 
+			// remove existing panel questions
+			$('.video50-question .panel-close').click();
+
 			// clear previous question contents and events
 			var player = $(this.options.playerContainer);
 			var $container = $(this.options.playerContainer).find('.flip-question-container .question-content');
@@ -308,6 +314,9 @@ CS50.Video.prototype.showQuestion = function(id) {
 
 		// display question in the specified panel while video plays
 		else if (question.mode == CS50.Video.QuestionMode.PANEL) {
+			// remove existing flip questions
+			$('.video50-player .btn-back').click();
+
 			// clear previous question contents and events
 			var $container = $(this.options.questionContainer);
 			$container.empty().off();
@@ -317,8 +326,10 @@ CS50.Video.prototype.showQuestion = function(id) {
 			question.question.render($container.find('.question-content'), question.question, CS50.Video.renderCallback);
 
 			// when x in top-right corner is clicked, remove the question
-			$container.on('click', '.close', function() {
+			$container.on('click', '.panel-close', function() {
 				$container.find('.video50-question').fadeOut('fast', function() {
+					// remove question controls
+					$('.video50-txt-answer').remove();
 					$(this).remove();
 				});
 			});

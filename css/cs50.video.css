@@ -126,9 +126,14 @@
     margin-top: 10px;
 }
 
-.video50-question .close {
+.video50-question .panel-close {
     position: absolute;
     right: 5px;
+}
+
+.video50-question .btn-submit {
+    clear: both;
+    display: block;
 }
 
 .video50-transcript-container {

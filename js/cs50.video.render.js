@@ -63,10 +63,20 @@ CS50.Video.Render.MultipleChoice = function(container, data, callback) {
  *
  */
 CS50.Video.Render.FreeResponse = function(container, data, callback) {
-	// render question and input area
+	// render question and input area placeholder
 	var $container = $(container);
 	$container.append('<h2>' + data.question + '</h2>');
-	$container.append('<input class="txt-answer" type="text" /><br />')
+	var $placeholder = $('<input type="text" class="txt-answer-location" />');
+	$container.append($placeholder);
+
+	// create input area that is absolutely positioned to avoid transform weirdness
+	var $input = $('<input type="text" class="video50-txt-answer" />');
+	setTimeout(function() {
+		var offset = $placeholder.offset();
+		$input.css({ position: 'absolute', 'top': offset.top + 'px', 'left': offset.left + 'px', 'z-index': 99 });
+		$('body').append($input);
+		$placeholder.css({ visibility: 'hidden' });
+	}, 1000);
 
 	// create submit button, hidden by default
 	var $submit = $('<button class="btn btn-submit">Submit Response</button>').hide();
@@ -79,7 +89,7 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
 		$container.find('.alert').remove();
 
 		// create message to be shown depending on correctness of answer
-		if ($container.find('.txt-answer').val().match(data.answer))
+		if ($input.val().match(data.answer))
 			var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');		
 		else
 			var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
@@ -92,11 +102,11 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
 	});
 
 	// when answer is selected, make sure submit button is shown
-	$container.on('keyup', '.txt-answer', function() {
-		var $submit = $(this).siblings('.btn-submit');
+	$('body').on('keyup', '.video50-txt-answer', function() {
+		var $submit = $container.find('.btn-submit');
 
 		// toggle submit button based on input state
-		if ($(this).val().match(/^\s*$/) && $submit.is(':visible'))
+		if ($input.val().match(/^\s*$/) && $submit.is(':visible'))
 			$submit.fadeOut('fast');
 		else if (!$submit.is(':visible'))
 			$submit.fadeIn('fast');

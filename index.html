@@ -8,6 +8,7 @@
 		<script type="text/javascript" src="js/lib/underscore-min.js"></script>
 		<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
 		<script type="text/javascript" src="js/lib/mediaelement-and-player.min.js"></script>
+		<script type="text/javascript" src="js/lib/jquery.scroll.js"></script>
 		<script type="text/javascript" src="js/cs50.video.js"></script>
 		<script type="text/javascript" src="js/cs50.video.render.js"></script>
 
@@ -47,14 +48,24 @@
 					playerContainer: '#video',
 					questions: questions,
 					title: 'Lecture 0: Wednesday',
+					transcriptContainer: '#transcript',
 					video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
 				});
 			});
 		</script>
 	</head>
 	<body>
-		<br /><br />
-		<div id="video"></div>
+		<table>
+			<tr>
+				<td>
+					<div id="video"></div>
+				</td>
+				<td>
+					<div id="transcript"></div>
+				</td>
+			</tr>
+		</table>
+
 		<div id="questions"></div>
 	</body>
 </html>

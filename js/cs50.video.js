@@ -22,6 +22,7 @@ CS50.Video = function(options) {
 	this.options.autostart = (options.autostart === undefined) ? true : options.autostart;
 	this.options.height = (options.height === undefined) ? 360 : options.height;
 	this.options.questions = (options.questions === undefined) ? [] : options.questions;
+	this.options.srt = (options.srt === undefined) ? null : options.srt;
 	this.options.swf = (options.swf === undefined) ? 'swf/flashmediaelement' : options.swf;
 	this.options.title = (options.title === undefined) ? '' : options.title;
 	this.options.width = (options.width === undefined) ? 640 : options.width;
@@ -29,7 +30,7 @@ CS50.Video = function(options) {
 	// templates for plugin
 	template_html = {
 		player: ' \
-			<div class="video50-player"> \
+			<div class="video50-player" style="width: <%= width %>px; height: <%= 38 + height %>px"> \
 				<div class="player-navbar"> \
 					<button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
 					<div class="player-navbar-title"><%= title %></div> \
@@ -37,6 +38,9 @@ CS50.Video = function(options) {
 				<div class="flip-container"> \
 					<div class="video-container" style="width: <%= width %>px; height: <%= height %>px"> \
 						<video width="<%= width %>" height="<%= height %>" class="video-player" controls="controls"> \
+							<% if (srt) { %> \
+								<track kind="subtitles" src="<%= srt %>" srclang="en" /> \
+							<% } %> \
 				            <source type="video/mp4" src="<%= video %>" /> \
 							<object width="<%= width %>" height="<%= height %>" type="application/x-shockwave-flash" data="<%= swf %>"> \
 						        <param name="movie" value="<%= swf %>" /> \
@@ -44,7 +48,7 @@ CS50.Video = function(options) {
 						    </object> \
 						</video> \
 					</div> \
-					<div class="flip-question-container video50-question"> \
+					<div class="flip-question-container video50-question" style="width: <%= width %>px; height: <%= height %>px"> \
 						<div class="question-content"></div> \
 					</div> \
 				</div> \
@@ -72,6 +76,13 @@ CS50.Video = function(options) {
 					</a> \
 				</td> \
 			</tr> \
+		',
+
+		transcript: ' \
+			<div class="video50-transcript-container"> \
+				<div class="video50-transcript"> \
+				</div> \
+			</div> \
 		'
 	};
 
@@ -83,6 +94,7 @@ CS50.Video = function(options) {
     // instantiate video
 	this.createPlayer();
 	this.createNotifications();
+	this.loadSrt();
 };
 
 /**
@@ -119,6 +131,7 @@ CS50.Video.prototype.createPlayer = function() {
 	var $container = $(this.options.playerContainer);
 	$container.html(this.templates.player({
 		height: this.options.height,
+		srt: this.options.srt,
 		swf: this.options.swf,
 		title: this.options.title,
 		video: this.options.video,
@@ -128,9 +141,18 @@ CS50.Video.prototype.createPlayer = function() {
 	// create video player
 	var me = this;
 	this.player = new MediaElementPlayer(this.options.playerContainer + ' .video-player', {
+		flashName: 'lib/flashmediaelement.swf',
+		silverlightName: 'lib/silverlightmediaelement.xap',
+		timerRate: 500,
+
 		success: function (player, dom) { 
+			// event handler for video moving forward
 			player.addEventListener('timeupdate', function(e) {
+				// check if a new question is available
 				me.checkQuestionAvailable();
+
+				// update highlight on the transcript
+				me.updateTranscriptHighlight();
 			}, false);
 
 			// start video immediately if autostart is enabled
@@ -178,6 +200,70 @@ CS50.Video.prototype.createNotifications = function() {
 };
 
 /**
+ * Load the specified SRT file
+ *
+ */
+CS50.Video.prototype.loadSrt = function() {
+	this.srtData = {};
+	var player = this.player;
+	var me = this;
+
+	if (this.options.srt) {
+		$.get(this.options.srt, function(response) {
+			var timecodes = response.split(/\n\s*\n/);
+
+			// if transcript container is given, then build transcript
+			if (me.options.transcriptContainer) {
+				$(me.options.transcriptContainer).append(me.templates.transcript());
+				var $container = $(me.options.transcriptContainer).find('.video50-transcript');
+
+				// iterate over each timecode
+				var n = timecodes.length;
+				for (var i = 0; i < n; i++) {
+					// split the elements of the timecode
+					var timecode = timecodes[i].split("\n");
+					if (timecode.length > 1) {
+						// extract time and content from timecode
+						var timestamp = timecode[1].split(" --> ")[0];
+						timecode.splice(0, 2);
+						var content = timecode.join(" ");
+
+						// if line starts with >> or [, then start a new line
+						if (content.match(/^(>>|\[)/))
+							$container.append('<br /><br />');
+
+						// convert from hours:minutes:seconds to seconds
+						var time = timestamp.match(/(\d+):(\d+):(\d+)/);
+						var seconds = parseInt(time[1], 10) * 3600 + parseInt(time[2], 10) * 60 + parseInt(time[3], 10);
+
+						// add line to transcript
+						$container.append('<a href="#" data-time="' + seconds + '">' + content + '</a>');
+					}
+				}
+
+				// when a line is clicked, seek to that time in the video
+				$container.on('click', 'a', function() {
+					// determine timecode associated with line
+					var time = $(this).attr('data-time');
+
+					if (time)	
+						player.setCurrentTime(time);
+				});
+
+				// keep track of scroll state so we don't auto-seek the transcript when the user scrolls
+				me.disableTranscriptAutoSeek = false;
+				$(me.options.transcriptContainer).find('.video50-transcript-container').on('scrollstart', function() {
+					me.disableTranscriptAutoSeek = true;
+				});
+				$(me.options.transcriptContainer).find('.video50-transcript-container').on('scrollstop', function() {
+					me.disableTranscriptAutoSeek = false;
+				});
+			}
+		});
+	}
+};
+
+/**
  * Callback for logging question data
  *
  */
@@ -216,3 +302,28 @@ CS50.Video.prototype.showQuestion = function(id) {
 		}
 	}
 };
+
+/**
+ * Highlight the line corresponding to the current point in the video in the transcript
+ *
+ */
+CS50.Video.prototype.updateTranscriptHighlight = function() {
+	var time = Math.floor(this.player.getCurrentTime());
+	var $container = $(this.options.transcriptContainer);
+	var $active = $container.find('[data-time="' + time + '"]');
+
+	// check if a new element should be highlighted
+	if ($active && $active.length) {
+		// remove all other highlights
+		$container.find('a').removeClass('highlight');
+
+		// add highlight to active element
+		$active.addClass('highlight');
+
+		// put the current element in the middle of the transcript if user is not scrolling
+		if (!this.disableTranscriptAutoSeek) {
+			var top = $active.position().top - parseInt($container.height() / 2);
+			$container.find('.video50-transcript-container').scrollTop(top);
+		}
+	}
+}

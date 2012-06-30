@@ -1,6 +1,4 @@
 .video50-player {
-    width: 640px;
-    height: 360px;
     position: relative;
     -webkit-perspective: 800px;
     -moz-perspective: 800px;
@@ -71,10 +69,8 @@
     backface-visibility: hidden;
 }
 
-/* TODO: JONG */
 .video50-notifications {
-    position: absolute;
-    top: 440px;
+    width: 640px;
 }
 
 .video50-notifications tbody td {
@@ -120,6 +116,27 @@
 
 .video50-question .btn-show-video {
     margin-left: 10px;
+}
+
+.video50-transcript-container {
+    height: 360px;
+    overflow: auto;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 640px;
+}
+
+.video50-transcript {
+    position: relative;
+}
+
+.video50-transcript a {
+    color: black;
+}
+
+.video50-transcript a.highlight {
+    color: #08C;
+    font-weight: bold;
 }
 
 @-webkit-keyframes pop-in {
@@ -174,7 +191,6 @@
         -webkit-transform: scale(0.5); 
     }
 }
-
 @-moz-keyframes pop-out {
     0% { 
         opacity: 1;
@@ -188,7 +204,6 @@
         -webkit-transform: scale(0.5); 
     }
 }
-
 @-ms-keyframes pop-out {
     0% { 
         opacity: 1;

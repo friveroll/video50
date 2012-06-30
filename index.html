@@ -19,9 +19,8 @@
 					mode: CS50.Video.QuestionMode.PANEL,
 					question: {
 						id: 0,
-						render: CS50.Video.Render.MultipleChoice,
-						answer: 0,
-						choices: ['Yes', 'No'],
+						render: CS50.Video.Render.TrueFalse,
+						answer: true,
 						question: 'Is David wearing a v-neck?',
 						tags: ['Linked Lists', 'Pointers']
 					}
@@ -47,6 +46,18 @@
 						answer: /^very$/i,
 						question: 'How awesome is Tommy?',
 						tags: ['JavaScript', 'DOM']
+					}
+				},
+				{
+					timecode: 0,
+					mode: CS50.Video.QuestionMode.FLIP,
+					question: {
+						id: 3,
+						render: CS50.Video.Render.Numeric,
+						answer: 35,
+						question: 'How old is David?',
+						tags: ['Algorithms', 'Insertion Sort'],
+						tolerance: 0.1
 					}
 				}
 			];

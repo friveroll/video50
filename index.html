@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+	<head>
+		<link href="css/lib/mediaelementplayer.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css" />
+		<link href="css/cs50.video.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
+		<script type="text/javascript" src="js/lib/underscore-min.js"></script>
+		<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/lib/mediaelement-and-player.min.js"></script>
+		<script type="text/javascript" src="js/cs50.video.js"></script>
+		<script type="text/javascript" src="js/cs50.video.render.js"></script>
+
+		<script>
+			var questions = [
+				{
+					timecode: 0,
+					mode: 'flip',
+					question: {
+						id: 0,
+						render: CS50.Video.Render.MultipleChoice,
+						answer: 0,
+						choices: ['Yes', 'No'],
+						question: 'Is David wearing a v-neck?',
+						tags: ['Linked Lists', 'Pointers']
+					}
+				},
+				{
+					timecode: 2,
+					mode: 'flip',
+					question: {
+						id: 1,
+						render: CS50.Video.Render.MultipleChoice,
+						answer: 2,
+						choices: [100, 70, 50, 30],
+						question: 'How many TFs are there?',
+						tags: ['PHP', 'MySQL']
+					}
+				}
+
+			];
+
+			$(function() {
+				var player = new CS50.Video({
+					autostart: true,
+					notificationsContainer: '#questions',
+					playerContainer: '#video',
+					questions: questions,
+					title: 'Lecture 0: Wednesday',
+					video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
+				});
+			});
+		</script>
+	</head>
+	<body>
+		<br /><br />
+		<div id="video"></div>
+		<div id="questions"></div>
+	</body>
+</html>

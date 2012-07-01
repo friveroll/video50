@@ -345,9 +345,23 @@ CS50.Video.prototype.loadSrt = function(language) {
                     }
                 }
 
-                // when language is changed, refresh srt data
+                // when transcript language is changed, refresh srt data and captioning
                 $(me.options.transcriptContainer).on('click', '.video50-transcript-lang a[data-lang]', function() {
-                    me.loadSrt($(this).attr('data-lang'));
+                    // refresh transcript
+                    var lang = $(this).attr('data-lang');
+                    me.loadSrt(lang);
+
+                    // change language in player if captions have been turned on by user
+                    if ($(me.options.playerContainer).find('.mejs-captions-selector input[type=radio]:checked').attr('value') != 'none')
+                        $(me.options.playerContainer).find('.mejs-captions-selector input[value="' + lang + '"]').click();
+                });
+
+                // when captioning is changed, refresh srt data
+                $(me.options.playerContainer).on('click', '.mejs-captions-selector input[type=radio]', function() {
+                    var lang = $(this).attr('value');
+
+                    if (lang != 'none')
+                        me.loadSrt(lang);
                 });
 
                 // when a line is clicked, seek to that time in the video

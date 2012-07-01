@@ -135,6 +135,11 @@
     display: block;
 }
 
+.video50-transcript-lang {
+    display: inline-block;
+    vertical-align: middle;
+}
+
 .video50-transcript-container {
     height: 360px;
     overflow: auto;

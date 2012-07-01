@@ -21,6 +21,7 @@ CS50.Video = function(options) {
 	// specify default values for optional parameters
 	this.options.autostart = (options.autostart === undefined) ? true : options.autostart;
 	this.options.height = (options.height === undefined) ? 360 : options.height;
+	this.options.playbackRates = (options.playbackRates === undefined) ? [0.75, 1, 1.25, 1.5] : options.playbackRates;
 	this.options.questions = (options.questions === undefined) ? [] : options.questions;
 	this.options.srt = (options.srt === undefined) ? null : options.srt;
 	this.options.swf = (options.swf === undefined) ? './flashmediaelement.swf' : options.swf;
@@ -33,6 +34,18 @@ CS50.Video = function(options) {
 			<div class="video50-question"> \
 				<button type="button" class="panel-close close">&times;</button> \
 				<div class="question-content"></div> \
+			</div> \
+		',
+
+		playbackControls: ' \
+			<div class="video50-playback-controls"> \
+				<ul class="nav nav-pills"> \
+					<% for (var i in rates) { %> \
+						<li data-rate="<%= rates[i] %>" class="btn-playback-rate"> \
+							<a href="#"><%= rates[i] %>x</a> \
+						</li> \
+					<% } %> \
+				</ul> \
 			</div> \
 		',
 
@@ -181,6 +194,42 @@ CS50.Video.prototype.createPlayer = function() {
 			// start video immediately if autostart is enabled
 			if (me.options.autostart)
 				player.play();
+
+			// determine if browser is capable of variable playback speeds
+			var canAdjustPlayback = player.pluginType != 'flash';
+
+			// if playback rates are given, then display controls
+			if (me.options.playbackRates.length && canAdjustPlayback) {
+				// use explicit container if given, else simply put controls below video
+				if (me.options.playbackContainer)
+					$(me.options.playbackContainer).html(me.templates.playbackControls({ 
+						rates: me.options.playbackRates 
+					}));
+				else {
+					me.options.playbackContainer = $(me.templates.playbackControls({ 
+						rates: me.options.playbackRates 
+					}));
+					$container.after(me.options.playbackContainer);
+				}
+
+				// 1 is the default playback rate
+				var $playbackContainer = $(me.options.playbackContainer);
+				$playbackContainer.find('[data-rate="1"]').addClass('active');
+
+				// when playback button is changed, alter rate of video
+				$playbackContainer.on('click', '.btn-playback-rate', function(e) {
+					// highlight the current control and remove highlight from others
+					$(this).siblings().removeClass('active');
+					$(this).addClass('active');
+
+					// adjust video rate
+					me.player.media.playbackRate = parseFloat($(this).attr('data-rate'));
+
+					e.preventDefault();
+					return false;
+				});
+			}
+
 		}
 	});
 
@@ -291,9 +340,13 @@ CS50.Video.prototype.loadSrt = function() {
 
 /**
  * Callback for logging question data
+ * 
+ * @param correct Whether or not the question was answered correctly
+ * @param data Additional data to be logged by server
  *
  */
-CS50.Video.prototype.renderCallback = function() {
+CS50.Video.prototype.renderCallback = function(correct, data) {
+	return true;
 };
 
 /**

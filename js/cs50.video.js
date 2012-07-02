@@ -15,7 +15,7 @@ CS50.Video = function(options) {
         throw 'Error: You must define a container for the player!';
     if (!this.options.notificationsContainer)
         throw 'Error: You must define a container for the list of questions!';
-    if (!this.options.video)
+    if (!this.options.video || !this.options.video.length)
         throw 'Error: You must define a video to play!';
 
     // specify default values for optional parameters
@@ -67,7 +67,9 @@ CS50.Video = function(options) {
                                     <% } %> \
                                 <% } %> \
                             <% } %> \
-                            <source type="video/mp4" src="<%= video %>" /> \
+                            <% for (var i in video) { %> \
+                                <source type="video/<%= video[i].type %>" src="<%= video[i].url %>" /> \
+                            <% } %> \
                             <object width="<%= width %>" height="<%= height %>" type="application/x-shockwave-flash" data="<%= swf %>"> \
                                 <param name="movie" value="<%= swf %>" /> \
                                 <param name="flashvars" value="controls=true&file=<%= video %>" /> \
@@ -479,7 +481,7 @@ CS50.Video.prototype.showQuestion = function(id) {
             $container.empty().off();
 
             // render question
-            question.question.render($container, question.question, CS50.Video.renderCallback);
+            question.question.render($container, question.question, this.renderCallback);
 
             // flip player to show question
             $(this.options.playerContainer).find('.video-container').fadeOut('medium');
@@ -502,7 +504,7 @@ CS50.Video.prototype.showQuestion = function(id) {
 
             // render question
             $container.hide().html(this.templates.panelQuestion()).fadeIn('fast');
-            question.question.render($container.find('.question-content'), question.question, CS50.Video.renderCallback);
+            question.question.render($container.find('.question-content'), question.question, this.renderCallback);
 
             // when x in top-right corner is clicked, remove the question
             $container.on('click', '.panel-close', function() {

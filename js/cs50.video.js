@@ -87,9 +87,11 @@ CS50.Video = function(options) {
                     <thead> \
                         <tr> \
                             <td> \
-                                <strong>Available Questions</strong> \
+                                <strong>Available Questions</strong><br /> \
                                 <input id="video50-notifications-auto" type="checkbox" /> \
                                 <label for="video50-notifications-auto">Automatically go to new questions</label> \
+                                <input id="video50-notifications-all" type="checkbox" /> \
+                                <label for="video50-notifications-all">Show all questions for this video</label> \
                             </td> \
                         </tr> \
                     </thead> \
@@ -141,10 +143,27 @@ CS50.Video = function(options) {
     for (var template in templateHtml)
         this.templates[template] = _.template(templateHtml[template]);
 
+    // sort questions by timecode
+    this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); });
+
     // instantiate video
     this.createPlayer();
     this.createNotifications();
     this.loadSrt(this.options.defaultLanguage);
+};
+
+// question mode constants
+CS50.Video.QuestionMode = {
+    FLIP: 'flip',
+    PANEL: 'panel'
+};
+
+// question state constants
+CS50.Video.QuestionState = {
+    UNSEEN: 'unseen',
+    UNANSWERED: 'unanswered',
+    CORRECT: 'correct',
+    INCORRECT: 'incorrect'
 };
 
 /**
@@ -163,7 +182,7 @@ CS50.Video.prototype.checkQuestionAvailable = function() {
     var me = this;
     _.each(this.options.questions, function(e, i) {
         // question should be shown if timecodes match and it isn't already shown
-        if (e.timecode == Math.floor(player.getCurrentTime()) && 
+        if (e.timecode <= Math.floor(player.getCurrentTime()) && 
                 !$container.find('tr[data-question-id="' + e.question.id + '"]').length) {
 
             // don't take both actions on the same question
@@ -285,7 +304,7 @@ CS50.Video.prototype.createNotifications = function() {
     var $container = $(this.options.notificationsContainer);
     $container.html(this.templates.notifications());
 
-    // event handler for selecting a question to view
+    // selecting a question should view displays that question
     var me = this;
     $container.on('click', 'a', function() {
         // display question
@@ -294,7 +313,29 @@ CS50.Video.prototype.createNotifications = function() {
 
         // remove selected question from list
         $(this).tooltip('hide');
-        $(this).parents('tr').remove();
+    });
+
+    // toggling the show all questions toggles unseen questions
+    $container.on('change', '#video50-notifications-all', function() {
+        // display all questions
+        if ($(this).is(':checked')) {
+            _.each(me.options.questions, function(e) {
+                if (!$container.find('tr[data-question-id="' + e.question.id + '"]').length)
+                    $container.find('tbody').append(me.templates.notification({
+                        question: e
+                    })).find('[rel=tooltip]').tooltip({
+                        placement: 'right'
+                    });
+            });
+        }
+
+        // remove all questions that appear after the current timecode
+        else {
+            _.each(me.options.questions, function(e) {
+                if (e.timecode > Math.floor(me.player.getCurrentTime()))
+                    $container.find('tr[data-question-id="' + e.question.id + '"]').remove();
+            });
+        }
     });
 };
 
@@ -393,11 +434,18 @@ CS50.Video.prototype.loadSrt = function(language) {
 /**
  * Callback for logging question data
  * 
+ * @param id ID of question that was answered
  * @param correct Whether or not the question was answered correctly
  * @param data Additional data to be logged by server
  *
  */
-CS50.Video.prototype.renderCallback = function(correct, data) {
+CS50.Video.prototype.renderCallback = function(id, correct, data) {
+    // determine question that was answered
+    var question = _.find(this.options.questions, function(e) { return e.question.id == id; });
+
+    // keep track of new question state locally
+    question.state = (correct) ? CS50.Video.QuestionState.CORRECT : CS50.Video.QuestionState.INCORRECT;
+
     return true;
 };
 
@@ -412,6 +460,10 @@ CS50.Video.prototype.showQuestion = function(id) {
     if (question) {
         // keep track of the current question
         this.currentQuestion = id;
+
+        // mark question as unanswered if it was previously unseen
+        if (!question.state || question.state == CS50.Video.QuestionState.UNSEEN)
+            question.state = CS50.Video.QuestionState.UNANSWERED;
 
         // flip video over to display question
         if (question.mode == CS50.Video.QuestionMode.FLIP) {

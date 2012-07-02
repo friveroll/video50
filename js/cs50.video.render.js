@@ -2,11 +2,6 @@
 var CS50 = CS50 || {};
 CS50.Video.Render = CS50.Video.Render || {};
 
-// question types
-CS50.Video.QuestionMode = CS50.Video.Mode || {};
-CS50.Video.QuestionMode.FLIP = 'flip';
-CS50.Video.QuestionMode.PANEL = 'panel';
-
 /**
  * Renderer for a multiple choice question
  *
@@ -43,13 +38,17 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
         $container.find('.alert').remove();
 
         // a correct answer matches the supplied regex
-        if ($input.val().match(data.answer))
+        var correct = $input.val().match(data.answer);
+        if (correct)
             var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
         else
             var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
     
         // display message
         $message.hide().appendTo($container).fadeIn('fast');
+
+        // log response
+        callback(data.id, correct, {});
 
         e.preventDefault();
         return false;
@@ -103,13 +102,17 @@ CS50.Video.Render.MultipleChoice = function(container, data, callback) {
         $container.find('.alert').remove();
 
         // the index of the selected answer must match the correct answer
-        if (data.answer == $container.find('input[type=radio]:checked').val())
+        var correct = (data.answer == $container.find('input[type=radio]:checked').val());
+        if (correct)
             var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
         else
             var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
     
         // display message
         $message.hide().appendTo($container).fadeIn('fast');
+
+        // log response
+        callback(data.id, correct, {});
 
         e.preventDefault();
         return false;
@@ -147,17 +150,26 @@ CS50.Video.Render.Numeric = function(container, data, callback) {
     $container.on('click', '.btn-submit', function(e) {
         var val = parseFloat($input.val());
 
-        // a correct answer is within the bounds established by the tolerance
+        // avoid any potential NaN weirdness
+        var correct = false;
         if (isNaN(val))
             var $message = $('<div class="alert alert-error">The answer must be a number, <strong>try again!</strong></div>');
-        else if (val <= data.answer + data.answer * data.tolerance && val >= data.answer - data.answer * data.tolerance)
-            var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
-        else
-            var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+
+        // a correct answer is within the bounds established by the tolerance
+        else {
+            correct = (val <= data.answer + data.answer * data.tolerance && val >= data.answer - data.answer * data.tolerance);
+            if (correct)
+                var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
+            else
+                var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+        }
 
         // display message
         $container.find('.alert').remove();
         $message.hide().appendTo($container).fadeIn('fast');
+
+        // log response
+        callback(data.id, correct, {});
 
         e.preventDefault();
         return false;

@@ -4,7 +4,22 @@ var CS50 = CS50 || {};
 /**
  * CS50 Video constructor
  *
- * @param options Player options
+ * @param options Player options:
+ *      autostart: True to start video automatically, false otherwise
+ *      defaultLanguage: Default language for transcript and subtitles
+ *      height: Height of video player
+ *      playbackContainer: Container to render playback controls within
+ *      playbackRates: List of supported playback rates
+ *      playerContainer: Container to render player within
+ *      notificationsContainer: Container to display question list within
+ *      questionContainer: Container to render question panel within
+ *      questions: List of questions to be displayed during video
+ *      srt: Object mapping languages to SRT file locations
+ *      swf: SWF file to fall back on for unsupported browsers
+ *      title: Title of Video
+ *      transcriptContainer: Container to render transcript within
+ *      video: List containing objects defining a video type (e.g., 'mp4') and URL
+ *      width: Width of video player
  *
  */
 CS50.Video = function(options) {
@@ -13,8 +28,6 @@ CS50.Video = function(options) {
     // make sure default options are defined
     if (!this.options.playerContainer)
         throw 'Error: You must define a container for the player!';
-    if (!this.options.notificationsContainer)
-        throw 'Error: You must define a container for the list of questions!';
     if (!this.options.video || !this.options.video.length)
         throw 'Error: You must define a video to play!';
 

@@ -3,7 +3,7 @@ This is CS50 Video.
 
 Video50 is an extensible video player that allows a variety of question types to be embedded at specific timecodes and supports multi-language transcripts.
 
-## Player
+# Player
 
 To create a new CS50 Video player, instantiate a new `CS50.Video` object:
 
@@ -44,7 +44,7 @@ The options object passed to the `CS50.Video` constructor can define the followi
 
 Of these keys, `playerContainer` and `video` are required.
 
-## Questions
+# Questions
 
 A question is represented by an object with the following required keys:
 
@@ -60,22 +60,22 @@ Questions are displayed to the user via a question rendering method. A question 
 
 The question renderer is then responsible for manipulating the DOM to allow users to interact with the question and informing them whether or not their answer is correct. To create a new question type, simply define a new rendering method and set that method as the `render` parameter in the question object. Check out the existing question types for examples.
 
-### Existing Question Types
+## Existing Question Types
 
 Video50 ships with support for several common question types.
 
-#### Free-Response
+### Free-Response
 
-Defined by `CS50.Video.Render.FreeResponse`.
+Defined by `CS50.Video.Render.FreeResponse`
 
 A question allowing the user input text into a text box. The following keys must be defined:
 
 * `answer`: A regular expression matching a correct answer.
 * `question`: The text of the question.
 
-#### Multiple-Choice
+### Multiple-Choice
 
-Defined by `CS50.Video.Render.MultipleChoice`.
+Defined by `CS50.Video.Render.MultipleChoice`
 
 A question allowing the user to select from a list of choices. The following keys must be defined:
 
@@ -83,9 +83,9 @@ A question allowing the user to select from a list of choices. The following key
 * `choices`: Array of choices to be displayed to the user.
 * `question`: The text of the question.
 
-#### Numeric
+### Numeric
 
-Defined by `CS50.Video.Render.Numeric`.
+Defined by `CS50.Video.Render.Numeric`
 
 A question allowing the user to input a number into a text box. The following keys must be defined:
 
@@ -93,9 +93,9 @@ A question allowing the user to input a number into a text box. The following ke
 * `question`: The text of the question.
 * `tolerance`: Uncertainty value for the answer. For example, a tolerance value of `0.1` will accept all answers that are within 10% of the specified answer.
 
-#### True/False
+### True/False
 
-Defined by `CS50.Video.TrueFalse`.
+Defined by `CS50.Video.TrueFalse`
 
 A question allowing the user to select "true" or "false". The following keys must be defined:
 

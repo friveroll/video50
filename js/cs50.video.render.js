@@ -55,14 +55,17 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
     });
 
     // when answer is selected, make sure submit button is shown
-    $('body').on('keyup', '.video50-txt-answer', function() {
+    $('body').on('keyup', '.video50-txt-answer', function(e) {
         var $submit = $container.find('.btn-submit');
+        var $input = $('.video50-txt-answer');
 
         // toggle submit button based on input state
         if ($input.val().match(/^\s*$/) && $submit.is(':visible'))
             $submit.fadeOut('fast');
         else if (!$submit.is(':visible'))
             $submit.fadeIn('fast');
+
+        e.stopPropagation();
     });
 
     return $input;

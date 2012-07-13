@@ -475,6 +475,7 @@ CS50.Video.prototype.showQuestion = function(id) {
     if (question) {
         // keep track of the current question
         this.currentQuestion = id;
+        $('.video50-txt-answer').remove();
 
         // mark question as unanswered if it was previously unseen
         if (!question.state || question.state == CS50.Video.QuestionState.UNSEEN)

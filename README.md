@@ -1,7 +1,7 @@
 This is CS50 Video.
 ---
 
-Video50 is an extensible video player that allows a variety of question types to be embedded at specific timecodes and supports multi-language transcripts.
+Video50 is an extensible video player that allows a variety of question types to be embedded at specific timecodes and supports transcripts for multiple languages.
 
 # Player
 
@@ -26,7 +26,7 @@ To create a new CS50 Video player, instantiate a new `CS50.Video` object:
 
 The options object passed to the `CS50.Video` constructor can define the following keys:
 
-* `autostart`: True to start video automatically, false otherwise.
+* `autostart`: True to start video automatically, false for video to start when user clicks play.
 * `defaultLanguage`: Default language for transcript and subtitles.
 * `height`: Height of video player (in pixels).
 * `playbackContainer`: Container to render playback controls within.
@@ -49,7 +49,7 @@ Of these keys, `playerContainer` and `video` are required.
 A question is represented by an object with the following required keys:
 
 * `mode`: Question display mode (i.e., flip the video container, display question in a separate panel, etc.).
-* `timecode`: Second of video at which question should become available.
+* `timecode`: Second of the video at which question should become available.
 * `question`: Object representing the question to be displayed. This object must contain at least an `id` representing the unique identifier for the question, a `render` function that will be called in order to display the question, and an array of `tags` that describe the topics covered by the question. Information specific to a question type, such as a `question` and an `answer`, must also be defined in this object.
 
 Questions are displayed to the user via a question rendering method. A question rendering method will be passed three parameters from the `CS50.Video` object:
@@ -101,3 +101,7 @@ A question allowing the user to select "true" or "false". The following keys mus
 
 * `answer`: Boolean value representing the correct answer.
 * `question`: The text of the question.
+
+# Known Issues
+
+* Video player only supports the latest versions of Chrome and Firefox. A JavaScript-only fallback to replace the player flip must be introduced for compatibility with other browsers.

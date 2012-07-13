@@ -5,13 +5,14 @@ CS50.Video.Render = CS50.Video.Render || {};
 /**
  * Renderer for a multiple choice question
  *
+ * @param video Video player object
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback
  * @return Input element user types into
  *
  */
-CS50.Video.Render.FreeResponse = function(container, data, callback) {
+CS50.Video.Render.FreeResponse = function(video, container, data, callback) {
     // render question and input area placeholder
     var $container = $(container);
     $container.append('<h2>' + data.question + '</h2>');
@@ -48,7 +49,7 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
         $message.hide().appendTo($container).fadeIn('fast');
 
         // log response
-        callback(data.id, correct, {});
+        callback.call(video, data.id, correct, {});
 
         e.preventDefault();
         return false;
@@ -74,12 +75,13 @@ CS50.Video.Render.FreeResponse = function(container, data, callback) {
 /**
  * Renderer for a multiple choice question
  *
+ * @param video Video player object
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback
  *
  */
-CS50.Video.Render.MultipleChoice = function(container, data, callback) {
+CS50.Video.Render.MultipleChoice = function(video, container, data, callback) {
     // render question title
     var $container = $(container);
     $container.append('<h2>' + data.question + '</h2>');
@@ -115,7 +117,7 @@ CS50.Video.Render.MultipleChoice = function(container, data, callback) {
         $message.hide().appendTo($container).fadeIn('fast');
 
         // log response
-        callback(data.id, correct, {});
+        callback.call(video, data.id, correct, {});
 
         e.preventDefault();
         return false;
@@ -133,17 +135,18 @@ CS50.Video.Render.MultipleChoice = function(container, data, callback) {
 /**
  * Renderer for a question with a numeric answer
  *
+ * @param video Video player object
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback 
  *
  */
-CS50.Video.Render.Numeric = function(container, data, callback) {
+CS50.Video.Render.Numeric = function(video, container, data, callback) {
     // if no tolerance given, then assume exact answer
     data.tolerance = (data.tolerance === undefined) ? 1 : data.tolerance;
 
     // render free response
-    var $input = CS50.Video.Render.FreeResponse(container, data, callback);
+    var $input = CS50.Video.Render.FreeResponse(video, container, data, callback);
 
     // swap out event handler
     var $container = $(container);
@@ -172,7 +175,7 @@ CS50.Video.Render.Numeric = function(container, data, callback) {
         $message.hide().appendTo($container).fadeIn('fast');
 
         // log response
-        callback(data.id, correct, {});
+        callback.call(video, data.id, correct, {});
 
         e.preventDefault();
         return false;
@@ -182,14 +185,15 @@ CS50.Video.Render.Numeric = function(container, data, callback) {
 /**
  * Renderer for a true/false question
  *
+ * @param video Video player object
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback
  *
  */
-CS50.Video.Render.TrueFalse = function(container, data, callback) {
+CS50.Video.Render.TrueFalse = function(video, container, data, callback) {
     // true/false is really just multiple choice
-    CS50.Video.Render.MultipleChoice(container, {
+    CS50.Video.Render.MultipleChoice(video, container, {
         answer: !data.answer,
         choices: ['True', 'False'],
         id: data.id,

@@ -101,7 +101,7 @@ CS50.Video = function(options) {
                 <table class="table table-bordered table-striped"> \
                     <thead> \
                         <tr> \
-                            <td> \
+                            <td colspan=2> \
                                 <strong>Available Questions</strong><br /> \
                                 <input id="video50-notifications-auto" type="checkbox" /> \
                                 <label for="video50-notifications-auto">Automatically go to new questions</label> \
@@ -117,7 +117,8 @@ CS50.Video = function(options) {
 
         notification: ' \
             <tr data-question-id="<%= question.question.id %>"> \
-                <td > \
+                <td class="question-state" style="width: 1px"></td> \
+                <td> \
                     <a href="#" rel="tooltip" title="<%= question.question.question %>"> \
                         <%= question.question.tags.join(", ") %> \
                     </a> \
@@ -207,13 +208,11 @@ CS50.Video.prototype.checkQuestionAvailable = function() {
                     me.showQuestion(e.question.id)
 
                 // put question at the top of the list of available questions
-                else {
-                    $container.prepend(me.templates.notification({
-                        question: e
-                    })).find('[rel=tooltip]').tooltip({
-                        placement: 'right'
-                    });
-                }
+                $container.prepend(me.templates.notification({
+                    question: e
+                })).find('[rel=tooltip]').tooltip({
+                    placement: 'right'
+                });
             }
         }
     })
@@ -461,6 +460,13 @@ CS50.Video.prototype.renderCallback = function(id, correct, data) {
     // keep track of new question state locally
     question.state = (correct) ? CS50.Video.QuestionState.CORRECT : CS50.Video.QuestionState.INCORRECT;
 
+    // update notifications container
+    var $cell = $(this.options.notificationsContainer).find('[data-question-id=' + id + ']').find('.question-state');
+    if (correct)
+        $cell.html('<i class="icon-ok"></i>');
+    else
+        $cell.html('<i class="icon-remove"></i>');
+
     return true;
 };
 
@@ -495,7 +501,7 @@ CS50.Video.prototype.showQuestion = function(id) {
             $container.empty().off();
 
             // render question
-            question.question.render($container, question.question, this.renderCallback);
+            question.question.render(this, $container, question.question, this.renderCallback);
 
             // flip player to show question
             $(this.options.playerContainer).find('.video-container').fadeOut('medium');
@@ -518,7 +524,7 @@ CS50.Video.prototype.showQuestion = function(id) {
 
             // render question
             $container.hide().html(this.templates.panelQuestion()).fadeIn('fast');
-            question.question.render($container.find('.question-content'), question.question, this.renderCallback);
+            question.question.render(this, $container.find('.question-content'), question.question, this.renderCallback);
 
             // when x in top-right corner is clicked, remove the question
             $container.on('click', '.panel-close', function() {

@@ -85,7 +85,7 @@ CS50.Video = function(options) {
                             <% } %> \
                             <object width="<%= width %>" height="<%= height %>" type="application/x-shockwave-flash" data="<%= swf %>"> \
                                 <param name="movie" value="<%= swf %>" /> \
-                                <param name="flashvars" value="controls=true&file=<%= video %>" /> \
+                                <param name="flashvars" value="controls=true&file=<%= video[0].url %>" /> \
                             </object> \
                         </video> \
                     </div> \

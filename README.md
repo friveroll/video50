@@ -19,9 +19,7 @@ To create a new CS50 Video player, instantiate a new `CS50.Video` object:
         },
         title: 'Lecture 0: Wednesday',
         transcriptContainer: '#transcript',
-        video: [
-            { type: 'mp4', url: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download' }
-        ]
+        video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
     });
 
 The options object passed to the `CS50.Video` constructor can define the following keys:
@@ -39,7 +37,7 @@ The options object passed to the `CS50.Video` constructor can define the followi
 * `swf`: SWF file to fall back on for unsupported browsers.
 * `title`: Title of Video.
 * `transcriptContainer`: Container to render transcript within.
-* `video`: List containing objects defining a video `type` (e.g., 'mp4') and `url`.
+* `video`: URL of the video to play.
 * `width`: Width of video player (in pixels).
 
 Of these keys, `playerContainer` and `video` are required.

@@ -217,9 +217,7 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
  *
  */
 CS50.Video.prototype.createPlayer = function() {
-    // apply degraded classes if flip is not supported
-    if (!this.supportsFlip)
-        $(this.options.playerContainer).find('.flip-container').addClass('degraded');
+    this.supportsFlip = false;
 
     // create html for video player
     var $container = $(this.options.playerContainer);
@@ -232,6 +230,10 @@ CS50.Video.prototype.createPlayer = function() {
         video: this.options.video,
         width: this.options.width
     }));
+
+    // apply degraded classes if flip is not supported
+    if (!this.supportsFlip)
+        $(this.options.playerContainer).find('.flip-container').addClass('degraded');
 
     // generate random id for player since jwplayer needs an id
     var id = Math.random().toString();

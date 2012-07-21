@@ -38,7 +38,7 @@ CS50.Video = function(options) {
     this.options.playbackRates = (options.playbackRates === undefined) ? [0.75, 1, 1.25, 1.5] : options.playbackRates;
     this.options.questions = (options.questions === undefined) ? [] : options.questions;
     this.options.srt = (options.srt === undefined) ? null : options.srt;
-    this.options.swf = (options.swf === undefined) ? './flashmediaelement.swf' : options.swf;
+    this.options.swf = (options.swf === undefined) ? 'flashmediaelement.swf' : options.swf;
     this.options.title = (options.title === undefined) ? '' : options.title;
     this.options.width = (options.width === undefined) ? 640 : options.width;
 
@@ -158,6 +158,18 @@ CS50.Video = function(options) {
     this.templates = {};
     for (var template in templateHtml)
         this.templates[template] = _.template(templateHtml[template]);
+
+    // determine browser support for the flippity flip
+    this.supportsFlip = ((function IEVersion() {
+        var rv = -1;
+        if (navigator.appName == 'Microsoft Internet Explorer') {
+            var ua = navigator.userAgent;
+            var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+            if (re.exec(ua) != null)
+            rv = parseFloat( RegExp.$1 );
+        }
+        return rv;
+    })() == -1);
 
     // sort questions by timecode
     this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); });
@@ -290,6 +302,10 @@ CS50.Video.prototype.createPlayer = function() {
         }
     });
 
+    // apply degraded classes if flip is not supported
+    if (!this.supportsFlip)
+        $(this.options.playerContainer).find('.flip-container').addClass('degraded');
+
     // when back button is pressed, return to video
     $container.on('click', '.btn-back', function(e) {
         // hide button
@@ -297,7 +313,10 @@ CS50.Video.prototype.createPlayer = function() {
 
         // start video and flip back
         me.player.play();
-        $container.find('.flip-container').removeClass('flipped');
+        if (me.supportsFlip)
+            $container.find('.flip-container').removeClass('flipped');
+        else
+            $container.find('.flip-question-container').fadeOut('fast');
 
         // remove input
         $('.video50-txt-answer').remove();
@@ -505,7 +524,10 @@ CS50.Video.prototype.showQuestion = function(id) {
 
             // flip player to show question
             $(this.options.playerContainer).find('.video-container').fadeOut('medium');
-            $(this.options.playerContainer).find('.flip-container').addClass('flipped');
+            if (this.supportsFlip)
+                $(this.options.playerContainer).find('.flip-container').addClass('flipped');
+            else
+                $(this.options.playerContainer).find('.flip-question-container').fadeIn('fast');
 
             // display back button
             setTimeout(function() {

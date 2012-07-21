@@ -25,4 +25,4 @@ java -jar yuicompressor-2.4.7.jar -o build/cs50.video.min.css build/cs50.video.m
 
 echo "Copying assets..."
 cp js/lib/flashmediaelement.swf js/lib/silverlightmediaelement.xap build
-cp css/img/* css/lib/img/* build/img
+cp css/lib/img/* build/img

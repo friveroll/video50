@@ -2,14 +2,12 @@
 <html>
     <head>
         <link href="css/lib/bootstrap.min.css" rel="stylesheet" type="text/css" />
-        <link href="css/lib/mediaelementplayer.min.css" rel="stylesheet" type="text/css" />
-        <link href="css/lib/mejs-skins.css" rel="stylesheet" type="text/css" />
         <link href="css/cs50.video.css" rel="stylesheet" type="text/css" />
         <script type="text/javascript" src="js/lib/jquery-1.7.2.min.js"></script>
         <script type="text/javascript" src="js/lib/underscore-min.js"></script>
         <script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
         <script type="text/javascript" src="js/lib/jquery.scroll.js"></script>
-        <script type="text/javascript" src="js/lib/mediaelement-and-player.min.js"></script>
+        <script type="text/javascript" src="js/lib/jwplayer.js"></script>
         <script type="text/javascript" src="js/cs50.video.js"></script>
         <script type="text/javascript" src="js/cs50.video.render.js"></script>
 
@@ -62,12 +60,10 @@
                         'en': 'week0w-en.srt',
                         'pt': 'week0w-pt.srt'
                     },
-                    swf: 'flashmediaelement.swf',
+                    swf: 'player.swf',
                     title: 'Lecture 0: Wednesday',
                     transcriptContainer: '#transcript',
-                    video: [
-                        { type: 'mp4', url: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download' }
-                    ]
+                    video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
                 });
             });
         </script>

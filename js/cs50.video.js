@@ -38,7 +38,7 @@ CS50.Video = function(options) {
     this.options.playbackRates = (options.playbackRates === undefined) ? [0.75, 1, 1.25, 1.5] : options.playbackRates;
     this.options.questions = (options.questions === undefined) ? [] : options.questions;
     this.options.srt = (options.srt === undefined) ? null : options.srt;
-    this.options.swf = (options.swf === undefined) ? 'flashmediaelement.swf' : options.swf;
+    this.options.swf = (options.swf === undefined) ? 'player.swf' : options.swf;
     this.options.title = (options.title === undefined) ? '' : options.title;
     this.options.width = (options.width === undefined) ? 640 : options.width;
 
@@ -70,25 +70,7 @@ CS50.Video = function(options) {
                     <div class="player-navbar-title"><%= title %></div> \
                 </div> \
                 <div class="flip-container"> \
-                    <div class="video-container" style="width: <%= width %>px; height: <%= height %>px"> \
-                        <video width="<%= width %>" height="<%= height %>" class="video-player" controls="controls"> \
-                            <% if (srt) { %> \
-                                <track kind="subtitles" src="<%= srt[defaultLanguage] %>" srclang="<%= defaultLanguage %>" /> \
-                                <% for (var i in srt) { %> \
-                                    <% if (i != defaultLanguage) { %> \
-                                        <track kind="subtitles" src="<%= srt[i] %>" srclang="<%= i %>" /> \
-                                    <% } %> \
-                                <% } %> \
-                            <% } %> \
-                            <% for (var i in video) { %> \
-                                <source type="video/<%= video[i].type %>" src="<%= video[i].url %>" /> \
-                            <% } %> \
-                            <object width="<%= width %>" height="<%= height %>" type="application/x-shockwave-flash" data="<%= swf %>"> \
-                                <param name="movie" value="<%= swf %>" /> \
-                                <param name="flashvars" value="controls=true&file=<%= video[0].url %>" /> \
-                            </object> \
-                        </video> \
-                    </div> \
+                    <div class="video-container" style="width: <%= width %>px; height: <%= height %>px"><div></div></div> \
                     <div class="flip-question-container video50-question" style="width: <%= width %>px; height: <%= height %>px"> \
                         <div class="question-content"></div> \
                     </div> \
@@ -198,7 +180,7 @@ CS50.Video.QuestionState = {
  * Check if a new question is available, adding it to the notifications container if so
  *
  */
-CS50.Video.prototype.checkQuestionAvailable = function() {
+CS50.Video.prototype.checkQuestionAvailable = function(time) {
     // make sure notifications container is given
     if (!this.options.notificationsContainer)
         return;
@@ -210,7 +192,7 @@ CS50.Video.prototype.checkQuestionAvailable = function() {
     var me = this;
     _.each(this.options.questions, function(e, i) {
         // question should be shown if timecodes match and it isn't already shown
-        if (e.timecode <= Math.floor(player.getCurrentTime()) && 
+        if (e.timecode <= Math.floor(time.position) && 
                 !$container.find('tr[data-question-id="' + e.question.id + '"]').length) {
 
             // don't take both actions on the same question
@@ -235,6 +217,10 @@ CS50.Video.prototype.checkQuestionAvailable = function() {
  *
  */
 CS50.Video.prototype.createPlayer = function() {
+    // apply degraded classes if flip is not supported
+    if (!this.supportsFlip)
+        $(this.options.playerContainer).find('.flip-container').addClass('degraded');
+
     // create html for video player
     var $container = $(this.options.playerContainer);
     $container.html(this.templates.player({
@@ -247,64 +233,79 @@ CS50.Video.prototype.createPlayer = function() {
         width: this.options.width
     }));
 
+    // generate random id for player since jwplayer needs an id
+    var id = Math.random().toString();
+    $container.find('.video-container div').attr('id', id);
+
     // create video player
     var me = this;
-    this.player = new MediaElementPlayer(this.options.playerContainer + ' .video-player', {
-        timerRate: 500,
-        success: function (player, dom) {
-            // event handler for video moving forward
-            player.addEventListener('timeupdate', function(e) {
-                // check if a new question is available
-                me.checkQuestionAvailable();
-
-                // update highlight on the transcript
-                me.updateTranscriptHighlight();
-            }, false);
-
-            // start video immediately if autostart is enabled
-            if (me.options.autostart)
-                player.play();
-
-            // determine if browser is capable of variable playback speeds
-            var canAdjustPlayback = player.pluginType != 'flash';
-
-            // if playback rates are given, then display controls
-            if (me.options.playbackRates.length && canAdjustPlayback) {
-                // use explicit container if given, else simply put controls below video
-                if (me.options.playbackContainer)
-                    $(me.options.playbackContainer).html(me.templates.playbackControls({ 
-                        rates: me.options.playbackRates 
-                    }));
-                else {
-                    me.options.playbackContainer = $(me.templates.playbackControls({ 
-                        rates: me.options.playbackRates 
-                    }));
-                    $container.after(me.options.playbackContainer);
-                }
-
-                // 1 is the default playback rate
-                var $playbackContainer = $(me.options.playbackContainer);
-                $playbackContainer.find('[data-rate="1"]').addClass('active');
-
-                // when playback button is changed, alter rate of video
-                $playbackContainer.on('click', '.btn-playback-rate', function(e) {
-                    // highlight the current control and remove highlight from others
-                    $(this).siblings().removeClass('active');
-                    $(this).addClass('active');
-
-                    // adjust video rate
-                    me.player.media.playbackRate = parseFloat($(this).attr('data-rate'));
-
-                    e.preventDefault();
-                    return false;
-                });
+    this.player = jwplayer(id).setup({
+        controlbar: 'bottom',
+        file: this.options.video,
+        modes: [
+            { type: 'html5' },
+            { type: 'flash', src: this.options.swf },
+        ],
+        height: this.options.height,
+        width: this.options.width,
+        skin: 'skins/glow/glow.xml',
+        plugins: {
+            'captions-2': {
+                files: _.values(this.options.srt).join(),
+                labels: _.keys(this.options.srt).join()
             }
         }
     });
 
-    // apply degraded classes if flip is not supported
-    if (!this.supportsFlip)
-        $(this.options.playerContainer).find('.flip-container').addClass('degraded');
+    // update questions and transcripts as video plays
+    this.player.onTime(function(e) {
+        // check if a new question is available
+        me.checkQuestionAvailable(e);
+
+        // update highlight on the transcript
+        me.updateTranscriptHighlight(e);
+    });
+
+    this.player.onReady(function() {
+        // start video immediately if autostart is enabled
+        if (me.options.autostart)
+            me.player.play();
+
+        // determine if browser is capable of variable playback speeds
+        var canAdjustPlayback = (me.player.renderingMode != 'flash');
+
+        // if playback rates are given, then display controls
+        if (me.options.playbackRates.length && canAdjustPlayback) {
+            // use explicit container if given, else simply put controls below video
+            if (me.options.playbackContainer)
+                $(me.options.playbackContainer).html(me.templates.playbackControls({ 
+                    rates: me.options.playbackRates 
+                }));
+            else {
+                me.options.playbackContainer = $(me.templates.playbackControls({ 
+                    rates: me.options.playbackRates 
+                }));
+                $container.after(me.options.playbackContainer);
+            }
+
+            // 1 is the default playback rate
+            var $playbackContainer = $(me.options.playbackContainer);
+            $playbackContainer.find('[data-rate="1"]').addClass('active');
+
+            // when playback button is changed, alter rate of video
+            $playbackContainer.on('click', '.btn-playback-rate', function(e) {
+                // highlight the current control and remove highlight from others
+                $(this).siblings().removeClass('active');
+                $(this).addClass('active');
+
+                // adjust video rate
+                $container.find('video')[0].playbackRate = parseFloat($(this).attr('data-rate'));
+
+                e.preventDefault();
+                return false;
+            });
+        }
+    });
 
     // when back button is pressed, return to video
     $container.on('click', '.btn-back', function(e) {
@@ -448,7 +449,7 @@ CS50.Video.prototype.loadSrt = function(language) {
                     var time = $(this).attr('data-time');
 
                     if (time)   
-                        player.setCurrentTime(time);
+                        player.seek(Math.floor(time));
                 });
 
                 // keep track of scroll state so we don't auto-seek the transcript when the user scrolls
@@ -564,8 +565,8 @@ CS50.Video.prototype.showQuestion = function(id) {
  * Highlight the line corresponding to the current point in the video in the transcript
  *
  */
-CS50.Video.prototype.updateTranscriptHighlight = function() {
-    var time = Math.floor(this.player.getCurrentTime());
+CS50.Video.prototype.updateTranscriptHighlight = function(time) {
+    var time = Math.floor(time.position);
     var $container = $(this.options.transcriptContainer);
     var $active = $container.find('[data-time="' + time + '"]');
 

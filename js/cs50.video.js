@@ -217,8 +217,6 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
  *
  */
 CS50.Video.prototype.createPlayer = function() {
-    this.supportsFlip = false;
-
     // create html for video player
     var $container = $(this.options.playerContainer);
     $container.html(this.templates.player({
@@ -244,6 +242,7 @@ CS50.Video.prototype.createPlayer = function() {
     this.player = jwplayer(id).setup({
         controlbar: 'bottom',
         file: this.options.video,
+        provider: 'http',
         modes: [
             { type: 'html5' },
             { type: 'flash', src: this.options.swf },
@@ -540,6 +539,9 @@ CS50.Video.prototype.showQuestion = function(id) {
 
         // display question in the specified panel while video plays
         else if (question.mode == CS50.Video.QuestionMode.PANEL) {
+            // make sure player doesn't stop while we think, think, thiiiiiink
+            this.player.play();
+
             // remove existing flip questions
             $('.video50-player .btn-back').click();
 

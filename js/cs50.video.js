@@ -32,16 +32,43 @@ CS50.Video = function(options) {
         throw 'Error: You must define a video to play!';
 
     // specify default values for optional parameters
-    this.options.autostart = (options.autostart === undefined) ? true : options.autostart;
-    this.options.checkUrl = (options.checkUrl === undefined) ? false : options.checkUrl;
-    this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'en' : options.defaultLanguage;
-    this.options.height = (options.height === undefined) ? 360 : options.height;
-    this.options.playbackRates = (options.playbackRates === undefined) ? [0.75, 1, 1.25, 1.5] : options.playbackRates;
-    this.options.questions = (options.questions === undefined) ? [] : options.questions;
-    this.options.srt = (options.srt === undefined) ? null : options.srt;
-    this.options.swf = (options.swf === undefined) ? 'player.swf' : options.swf;
-    this.options.title = (options.title === undefined) ? '' : options.title;
-    this.options.aspectRatio = (options.aspectRatio == undefined) ? 1.33 : options.aspectRatio;
+    this.options = $.extend({
+        aspectRatio: 1.33,
+        autostart: true,
+        checkUrl: false,
+        defaultLanguage: 'en',
+        playbackRates: [0.75, 1, 1.25, 1.5],
+        playerOptions: {},
+        questions: [],
+        srt: null,
+        swf: 'player.swf',
+        title: '',
+    }, this.options);
+
+    // default options to video player
+    this.options.playerOptions = $.extend({
+        controlbar: 'bottom',
+        file: this.options.video,
+        provider: 'http',
+        modes: [{ 
+            type: 'html5' ,
+            config: {
+                file: this.options.video,
+                provider: 'video'
+            }
+        }, { 
+            type: 'flash', 
+            src: this.options.swf 
+        }],
+        width: "100%",
+        skin: 'skins/glow/glow.xml',
+        plugins: {
+            'captions-2': {
+                files: _.values(this.options.srt).join(),
+                labels: _.keys(this.options.srt).join()
+            }
+        }
+    }, this.options.playerOptions);
 
     // templates for plugin
     var templateHtml = {
@@ -225,23 +252,7 @@ CS50.Video.prototype.createPlayer = function() {
 
     // create video player
     var me = this;
-    this.player = jwplayer(id).setup({
-        controlbar: 'bottom',
-        file: this.options.video,
-        provider: 'http',
-        modes: [
-            { type: 'html5' },
-            { type: 'flash', src: this.options.swf },
-        ],
-        width: "100%",
-        skin: 'skins/glow/glow.xml',
-        plugins: {
-            'captions-2': {
-                files: _.values(this.options.srt).join(),
-                labels: _.keys(this.options.srt).join()
-            }
-        }
-    }).onReady(function() {
+    this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
         var height = width/me.options.aspectRatio;
         jwplayer().resize(width, height);    

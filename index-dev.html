@@ -52,15 +52,19 @@
                     checkUrl: 'http://tommymacwilliam.com/test.php',
                     notificationsContainer: '#questions',
                     playerContainer: '#video',
+                    playerOptions: {
+                        provider: "rtmp",
+                        streamer: "rtmp://stream.cs50.net/cfx/st/",
+                        file: "2011/fall/lectures/0/week0w.mp4"
+                    },
                     questions: questions,
-                    questionContainer: '#question',
                     srt: {
                         'en': 'week0w-en.srt',
                         'pt': 'week0w-pt.srt'
                     },
                     title: 'Lecture 0: Wednesday',
                     transcriptContainer: '#transcript',
-                    video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4?download'
+                    video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4'
                 });
             });
         </script>

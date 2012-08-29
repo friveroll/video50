@@ -5,21 +5,21 @@ var CS50 = CS50 || {};
  * CS50 Video constructor
  *
  * @param options Player options:
+ *      aspectRatio: Aspect ratio for the video
  *      autostart: True to start video automatically, false otherwise
  *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
- *      height: Height of video player
  *      playbackContainer: Container to render playback controls within
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
+ *      playerOptions: Additional options to pass to the video player
  *      notificationsContainer: Container to display question list within
  *      questions: List of questions to be displayed during video
  *      srt: Object mapping languages to SRT file locations
  *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
  *      transcriptContainer: Container to render transcript within
- *      video: List containing objects defining a video type (e.g., 'mp4') and URL
- *      width: Width of video player
+ *      video: URL of the video to play
  *
  */
 CS50.Video = function(options) {

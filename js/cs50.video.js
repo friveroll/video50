@@ -40,7 +40,7 @@ CS50.Video = function(options) {
     this.options.srt = (options.srt === undefined) ? null : options.srt;
     this.options.swf = (options.swf === undefined) ? 'player.swf' : options.swf;
     this.options.title = (options.title === undefined) ? '' : options.title;
-    this.options.width = (options.width === undefined) ? 640 : options.width;
+    this.options.aspectRatio = (options.aspectRatio == undefined) ? 1.33 : options.aspectRatio;
 
     // templates for plugin
     var templateHtml = {
@@ -64,14 +64,14 @@ CS50.Video = function(options) {
         ',
 
         player: ' \
-            <div class="video50-player" style="width: <%= width %>px; height: <%= 38 + height %>px"> \
+            <div class="video50-player"> \
                 <div class="player-navbar"> \
                     <button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
                     <div class="player-navbar-title"><%= title %></div> \
                 </div> \
                 <div class="flip-container"> \
-                    <div class="video-container" style="width: <%= width %>px; height: <%= height %>px"><div></div></div> \
-                    <div class="flip-question-container video50-question" style="width: <%= width %>px; height: <%= height %>px"> \
+                    <div class="video-container"><div></div></div> \
+                    <div class="flip-question-container video50-question"> \
                         <div class="question-content"></div> \
                     </div> \
                 </div> \
@@ -83,8 +83,8 @@ CS50.Video = function(options) {
                 <table class="table table-bordered table-striped"> \
                     <thead> \
                         <tr> \
-                            <td colspan=2> \
-                                <strong>Available Questions</strong><br /> \
+                            <td class="video50-notifications-options" colspan=2> \
+                                <strong>Available Questions</strong> \
                                 <input id="video50-notifications-auto" type="checkbox" /> \
                                 <label for="video50-notifications-auto">Automatically go to new questions</label> \
                                 <input id="video50-notifications-all" type="checkbox" /> \
@@ -221,12 +221,10 @@ CS50.Video.prototype.createPlayer = function() {
     var $container = $(this.options.playerContainer);
     $container.html(this.templates.player({
         defaultLanguage: this.options.defaultLanguage,
-        height: this.options.height,
         srt: this.options.srt,
         swf: this.options.swf,
         title: this.options.title,
         video: this.options.video,
-        width: this.options.width
     }));
 
     // apply degraded classes if flip is not supported
@@ -247,8 +245,7 @@ CS50.Video.prototype.createPlayer = function() {
             { type: 'html5' },
             { type: 'flash', src: this.options.swf },
         ],
-        height: this.options.height,
-        width: this.options.width,
+        width: "100%",
         skin: 'skins/glow/glow.xml',
         plugins: {
             'captions-2': {
@@ -256,7 +253,24 @@ CS50.Video.prototype.createPlayer = function() {
                 labels: _.keys(this.options.srt).join()
             }
         }
+    }).onReady(function() {
+        var width = $container.find('.video-container').width();
+        var height = width/me.options.aspectRatio;
+        jwplayer().resize(width, height);    
+        $container.find('.flip-question-container').css({
+            minHeight: height
+        });
     });
+    
+    // when resized, 
+    $(window).on('resize', function() {
+        var width = $container.find('.video-container').width();
+        var height = width/me.options.aspectRatio;
+        jwplayer().resize(width, height);
+        $container.find('.flip-question-container').css({
+            minHeight: height
+        });
+    }); 
 
     // update questions and transcripts as video plays
     this.player.onTime(function(e) {
@@ -324,9 +338,7 @@ CS50.Video.prototype.createPlayer = function() {
         $('.video50-txt-answer').remove();
 
         // fade video back in while flip is occurring for smoothness
-        setTimeout(function() {
-            $container.find('.video-container').fadeIn('medium');
-        }, 500);
+        $container.find('.video-container').fadeIn('medium');
     });
 };
 

@@ -10,6 +10,20 @@
     display: inline-block;
 }
 
+.video50-playback-controls {
+    box-shadow: 0px 1px 2px #BBB;
+    -webkit-box-shadow: 0px 1px 2px #BBB;
+    -moz-box-shadow: 0px 1px 2px #BBB;
+    border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    padding: 3px;
+}
+
+.video50-playback-controls .nav.nav-pills {
+    margin-bottom: 0px;
+}
+
 .video50-player {
     position: relative;
     -webkit-perspective: 800px;
@@ -50,8 +64,6 @@
 }
 
 .video50-player .flip-container {
-    width: 100%;
-    position: absolute;
     -webkit-transition: -webkit-transform 1s;
     -moz-transition: -moz-transform 1s;
     -o-transition: -o-transform 1s;
@@ -69,15 +81,24 @@
     transform: rotateY(180deg);
 }
 
-.video50-player .flip-container .video-container, .video50-player .flip-container .flip-question-container {
-    position: absolute;
+.video50-player .flip-container .video-container {
     display: block;
-    height: 100%;
-    width: 100%;
     -webkit-backface-visibility: hidden;
     -moz-backface-visibility: hidden;
     -o-backface-visibility: hidden;
     backface-visibility: hidden;
+}
+
+.video50-player .flip-container .flip-question-container {
+    display: none;
+    -webkit-backface-visibility: hidden;
+    -moz-backface-visibility: hidden;
+    -o-backface-visibility: hidden;
+    backface-visibility: hidden;
+}
+
+.video50-player .flip-container.flipped .flip-question-container {
+    display: block;
 }
 
 .video50-player .flip-container.degraded .flip-question-container, .video50-player .flip-container.flipped.degraded {
@@ -92,24 +113,29 @@
     backface-visibility: visible !important;
 }
 
-.video50-notifications {
-    width: 640px;
-}
-
-.video50-noficiations-auto {
-
-}
-
 .video50-notifications tbody td {
     -webkit-animation:pop-in 0.3s;
     -moz-animation:pop-in 0.3s;
     -ms-animation:pop-in 0.3s;
 }
 
+.video50-notifications .table-striped tbody tr:nth-child(even) td, 
+.video50-notifications .table-striped tbody tr:nth-child(even) th {
+    background-color: white;
+}
+
+.video50-notifications-options strong {
+    display: block;
+    line-height: normal;
+    margin-bottom: 5px;
+}
+
 .video50-question {
     background: #fafafa;
     border: 1px solid #ddd;
     border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
     min-height: 100%;
     position: relative;
 }
@@ -176,13 +202,14 @@
 .video50-transcript {
     border: 1px solid #ccc;
     border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
 }
 
 .video50-transcript-container {
     height: 360px;
     overflow: auto;
     border-top: 1px solid #ccc;
-    width: 640px;
     padding: 30px;
 }
 

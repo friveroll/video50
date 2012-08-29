@@ -6,13 +6,13 @@ var CS50 = CS50 || {};
  *
  * @param options Player options:
  *      autostart: True to start video automatically, false otherwise
+ *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
  *      height: Height of video player
  *      playbackContainer: Container to render playback controls within
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      notificationsContainer: Container to display question list within
- *      questionContainer: Container to render question panel within
  *      questions: List of questions to be displayed during video
  *      srt: Object mapping languages to SRT file locations
  *      swf: SWF file to fall back on for unsupported browsers
@@ -33,6 +33,7 @@ CS50.Video = function(options) {
 
     // specify default values for optional parameters
     this.options.autostart = (options.autostart === undefined) ? true : options.autostart;
+    this.options.checkUrl = (options.checkUrl === undefined) ? false : options.checkUrl;
     this.options.defaultLanguage = (options.defaultLanguage === undefined) ? 'en' : options.defaultLanguage;
     this.options.height = (options.height === undefined) ? 360 : options.height;
     this.options.playbackRates = (options.playbackRates === undefined) ? [0.75, 1, 1.25, 1.5] : options.playbackRates;
@@ -44,13 +45,6 @@ CS50.Video = function(options) {
 
     // templates for plugin
     var templateHtml = {
-        panelQuestion: ' \
-            <div class="video50-question"> \
-                <button type="button" class="panel-close close">&times;</button> \
-                <div class="question-content"></div> \
-            </div> \
-        ',
-
         playbackControls: ' \
             <div class="video50-playback-controls"> \
                 <ul class="nav nav-pills"> \
@@ -160,12 +154,6 @@ CS50.Video = function(options) {
     this.createPlayer();
     this.createNotifications();
     this.loadSrt(this.options.defaultLanguage);
-};
-
-// question mode constants
-CS50.Video.QuestionMode = {
-    FLIP: 'flip',
-    PANEL: 'panel'
 };
 
 // question state constants
@@ -520,60 +508,28 @@ CS50.Video.prototype.showQuestion = function(id) {
         if (!question.state || question.state == CS50.Video.QuestionState.UNSEEN)
             question.state = CS50.Video.QuestionState.UNANSWERED;
 
-        // flip video over to display question
-        if (question.mode == CS50.Video.QuestionMode.FLIP) {
-            // stop video so we can think, think, thiiiiiink
-            this.player.pause();
+        // stop video so we can think, think, thiiiiiink
+        this.player.pause();
 
-            // remove existing panel questions
-            $('.video50-question .panel-close').click();
+        // clear previous question contents and events
+        var player = $(this.options.playerContainer);
+        var $container = $(this.options.playerContainer).find('.flip-question-container .question-content');
+        $container.empty().off();
 
-            // clear previous question contents and events
-            var player = $(this.options.playerContainer);
-            var $container = $(this.options.playerContainer).find('.flip-question-container .question-content');
-            $container.empty().off();
+        // render question
+        question.question.render(this, $container, question.question, this.renderCallback);
 
-            // render question
-            question.question.render(this, $container, question.question, this.renderCallback);
+        // flip player to show question
+        $(this.options.playerContainer).find('.video-container').fadeOut('medium');
+        if (this.supportsFlip)
+            $(this.options.playerContainer).find('.flip-container').addClass('flipped');
+        else
+            $(this.options.playerContainer).find('.flip-question-container').fadeIn('fast');
 
-            // flip player to show question
-            $(this.options.playerContainer).find('.video-container').fadeOut('medium');
-            if (this.supportsFlip)
-                $(this.options.playerContainer).find('.flip-container').addClass('flipped');
-            else
-                $(this.options.playerContainer).find('.flip-question-container').fadeIn('fast');
-
-            // display back button
-            setTimeout(function() {
-                player.find('.btn-back').show();
-            }, 100);
-        }
-
-        // display question in the specified panel while video plays
-        else if (question.mode == CS50.Video.QuestionMode.PANEL) {
-            // make sure player doesn't stop while we think, think, thiiiiiink
-            this.player.play();
-
-            // remove existing flip questions
-            $('.video50-player .btn-back').click();
-
-            // clear previous question contents and events
-            var $container = $(this.options.questionContainer);
-            $container.empty().off();
-
-            // render question
-            $container.hide().html(this.templates.panelQuestion()).fadeIn('fast');
-            question.question.render(this, $container.find('.question-content'), question.question, this.renderCallback);
-
-            // when x in top-right corner is clicked, remove the question
-            $container.on('click', '.panel-close', function() {
-                $container.find('.video50-question').fadeOut('fast', function() {
-                    // remove question controls
-                    $('.video50-txt-answer').remove();
-                    $(this).remove();
-                });
-            });
-        }
+        // display back button
+        setTimeout(function() {
+            player.find('.btn-back').show();
+        }, 100);
     }
 };
 

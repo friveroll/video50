@@ -8,6 +8,7 @@ cat \
     js/lib/underscore-min.js \
     js/lib/bootstrap.min.js \
     js/lib/jquery.scroll.js \
+    js/lib/jwplayer.js \
     js/cs50.video.js \
     js/cs50.video.render.js \
     > build/cs50.video.min.js

@@ -15,10 +15,9 @@
             var questions = [
                 {
                     timecode: 0,
-                    mode: CS50.Video.QuestionMode.PANEL,
                     question: {
                         id: 0,
-                        render: CS50.Video.Render.TrueFalse,
+                        render: CS50.Video.Render.TrueFalseRemote,
                         answer: true,
                         question: 'Is David wearing a v-neck?',
                         tags: ['Linked Lists', 'Pointers']
@@ -26,10 +25,9 @@
                 },
                 {
                     timecode: 3,
-                    mode: CS50.Video.QuestionMode.FLIP,
                     question: {
                         id: 2,
-                        render: CS50.Video.Render.FreeResponse,
+                        render: CS50.Video.Render.FreeResponseRemote,
                         answer: /^very$/i,
                         question: 'How awesome is Tommy?',
                         tags: ['JavaScript', 'DOM']
@@ -37,10 +35,9 @@
                 },
                 {
                     timecode: 6,
-                    mode: CS50.Video.QuestionMode.FLIP,
                     question: {
                         id: 3,
-                        render: CS50.Video.Render.Numeric,
+                        render: CS50.Video.Render.NumericRemote,
                         answer: 35,
                         question: 'How old is David?',
                         tags: ['Algorithms', 'Insertion Sort'],
@@ -52,6 +49,7 @@
             $(function() {
                 var player = new CS50.Video({
                     autostart: true,
+                    checkUrl: 'http://tommymacwilliam.com/test.php',
                     notificationsContainer: '#questions',
                     playerContainer: '#video',
                     questions: questions,
@@ -280,7 +278,6 @@
                 </div>
                 <div id="transcript" class="panel-inset"></div>
                 <div id="questions" class="panel"></div>
-                <div id="question" class="panel"></div>
             </div>
         </div>
     </body>

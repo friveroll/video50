@@ -3,6 +3,63 @@ var CS50 = CS50 || {};
 CS50.Video.Render = CS50.Video.Render || {};
 
 /**
+ * Check an answer via the remote server
+ *
+ * @param question Question being answered
+ * @param answer Student's selected answer
+ *
+ */
+CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
+    // make sure check url is defined
+    if (!video.options.checkUrl)
+        throw 'Error: A check URL must be defined!';
+
+    // send answer to server
+    var me = this;
+    $.ajax({
+        dataType: 'jsonp',
+        url: video.options.checkUrl,
+        data: { 
+            id: question.id,
+            answer: answer
+        }, 
+        success: function(response) {
+            // inform the user if the response was correct
+            me.displayCorrectness(response.correct, video);
+
+            // finish with this question
+            callback.call(video, question.id, response.correct, {});
+        }
+    });
+};
+
+/**
+ * Display a message informing the user if their answer was correct
+ *
+ * @param correct Whether or not the user was correct
+ * @param video Video player
+ * @param $container Container to display alert within
+ *
+ */
+CS50.Video.Render.displayCorrectness = function(correct, video, $container) {
+    // if no container given, add to player
+    if ($container === undefined)
+        $container = $(video.options.playerContainer).find('.question-content');
+
+    // remove previous messages from the container
+    $container.find('.alert').remove();
+
+    // display message depending on correctness of answer
+    if (correct)
+        var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
+    else
+        var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+
+    // display message
+    $message.hide().appendTo($container).fadeIn('fast');
+}
+
+/**
  * Renderer for a multiple choice question
  *
  * @param video Video player object
@@ -10,9 +67,10 @@ CS50.Video.Render = CS50.Video.Render || {};
  * @param data Question data
  * @param callback Response callback
  * @return Input element user types into
+ * @param remote Whether or not the question is checked remotely, defaults to true
  *
  */
-CS50.Video.Render.FreeResponse = function(video, container, data, callback) {
+CS50.Video.Render.FreeResponse = function(video, container, data, callback, remote) {
     // render question and input area placeholder
     var $container = $(container);
     $container.append('<h2>' + data.question + '</h2>');
@@ -33,23 +91,21 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback) {
     $container.append($submit);
 
     // when submit button is pressed, check the answer
+    var me = this;
     $container.on('click', '.btn-submit', function(e) {
-        // remove previous messages from the container
-        var $container = $(this).parents('.question-content');
-        $container.find('.alert').remove();
+        // local question
+        if (remote === undefined || remote === false) {
+            // a correct answer matches the supplied regex
+            var correct = $input.val().match(data.answer);
+            me.displayCorrectness(correct, video);
 
-        // a correct answer matches the supplied regex
-        var correct = $input.val().match(data.answer);
-        if (correct)
-            var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
+            // finish this question
+            callback.call(video, data.id, correct, {});
+        }
+
+        // remote question
         else
-            var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
-    
-        // display message
-        $message.hide().appendTo($container).fadeIn('fast');
-
-        // log response
-        callback.call(video, data.id, correct, {});
+            me.checkRemote(data, $input.val(), video, callback);
 
         e.preventDefault();
         return false;
@@ -73,7 +129,7 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback) {
 };
 
 /**
- * Renderer for a multiple choice question
+ * Renderer for a remote free response question
  *
  * @param video Video player object
  * @param container Container for question to be rendered within
@@ -81,7 +137,21 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback) {
  * @param callback Response callback
  *
  */
-CS50.Video.Render.MultipleChoice = function(video, container, data, callback) {
+CS50.Video.Render.FreeResponseRemote = function(video, container, data, callback) {
+    CS50.Video.Render.FreeResponse(video, container, data, callback, true);
+};
+
+/**
+ * Renderer for a multiple choice question
+ *
+ * @param video Video player object
+ * @param container Container for question to be rendered within
+ * @param data Question data
+ * @param callback Response callback
+ * @param remote Whether or not the question is checked remotely, defaults to true
+ *
+ */
+CS50.Video.Render.MultipleChoice = function(video, container, data, callback, remote) {
     // render question title
     var $container = $(container);
     $container.append('<h2>' + data.question + '</h2>');
@@ -101,29 +171,27 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback) {
     $container.append($submit);
 
     // when submit button is pressed, check the answer
+    var me = this;
     $container.on('click', '.btn-submit', function(e) {
-        // remove previous messages from the container
-        var $container = $(this).parents('.question-content');
-        $container.find('.alert').remove();
+        // local question
+        if (remote === undefined || remote === false) {
+            // the index of the selected answer must match the correct answer
+            var correct = (data.answer == $container.find('input[type=radio]:checked').val());
+            me.displayCorrectness(correct, video);
 
-        // the index of the selected answer must match the correct answer
-        var correct = (data.answer == $container.find('input[type=radio]:checked').val());
-        if (correct)
-            var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
+            // finish this question
+            callback.call(video, data.id, correct, {});
+        }
+
+        // remote question
         else
-            var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
-    
-        // display message
-        $message.hide().appendTo($container).fadeIn('fast');
-
-        // log response
-        callback.call(video, data.id, correct, {});
+            me.checkRemote(data, $container.find('input[type=radio]:checked').val(), video, callback);
 
         e.preventDefault();
         return false;
     });
 
-    // when answer is selected, make sure submit button is show
+    // when answer is selected, make sure submit button is shown
     $container.on('click', '.question-choices input[type=radio]', function() {
         $submit = $container.find('.btn-submit');
         if (!$submit.is(':visible')) {
@@ -133,15 +201,29 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback) {
 };
 
 /**
+ * Renderer for a remote multiple choice question
+ *
+ * @param video Video player object
+ * @param container Container for question to be rendered within
+ * @param data Question data
+ * @param callback Response callback
+ *
+ */
+CS50.Video.Render.MultipleChoiceRemote = function(video, container, data, callback) {
+    CS50.Video.Render.MultipleChoice(video, container, data, callback, true);
+};
+
+/**
  * Renderer for a question with a numeric answer
  *
  * @param video Video player object
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback 
+ * @param remote Whether or not the question is checked remotely, defaults to true
  *
  */
-CS50.Video.Render.Numeric = function(video, container, data, callback) {
+CS50.Video.Render.Numeric = function(video, container, data, callback, remote) {
     // if no tolerance given, then assume exact answer
     data.tolerance = (data.tolerance === undefined) ? 1 : data.tolerance;
 
@@ -153,33 +235,41 @@ CS50.Video.Render.Numeric = function(video, container, data, callback) {
     $container.off('click', '.btn-submit');
 
     // when submit is pressed, check answer
+    var me = this;
     $container.on('click', '.btn-submit', function(e) {
+        // make sure answer is given as a float
         var val = parseFloat($input.val());
 
-        // avoid any potential NaN weirdness
-        var correct = false;
-        if (isNaN(val))
-            var $message = $('<div class="alert alert-error">The answer must be a number, <strong>try again!</strong></div>');
+        // local question
+        if (remote === undefined || remote === false) {
+            var correct = (!isNaN(val) && val <= data.answer + data.answer * data.tolerance && 
+                val >= data.answer - data.answer * data.tolerance);
+            me.displayCorrectness(correct, video);
 
-        // a correct answer is within the bounds established by the tolerance
-        else {
-            correct = (val <= data.answer + data.answer * data.tolerance && val >= data.answer - data.answer * data.tolerance);
-            if (correct)
-                var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
-            else
-                var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+            // finish this question
+            callback.call(video, data.id, correct, {});
         }
 
-        // display message
-        $container.find('.alert').remove();
-        $message.hide().appendTo($container).fadeIn('fast');
-
-        // log response
-        callback.call(video, data.id, correct, {});
+        // remote question
+        else
+            me.checkRemote(data, val, video, callback);
 
         e.preventDefault();
         return false;
     });
+};
+
+/**
+ * Renderer for a remote numeric question
+ *
+ * @param video Video player object
+ * @param container Container for question to be rendered within
+ * @param data Question data
+ * @param callback Response callback
+ *
+ */
+CS50.Video.Render.NumericRemote = function(video, container, data, callback) {
+    CS50.Video.Render.Numeric(video, container, data, callback, true);
 };
 
 /**
@@ -189,16 +279,29 @@ CS50.Video.Render.Numeric = function(video, container, data, callback) {
  * @param container Container for question to be rendered within
  * @param data Question data
  * @param callback Response callback
+ * @param remote Whether or not the question is checked remotely, defaults to true
  *
  */
-CS50.Video.Render.TrueFalse = function(video, container, data, callback) {
+CS50.Video.Render.TrueFalse = function(video, container, data, callback, remote) {
     // true/false is really just multiple choice
     CS50.Video.Render.MultipleChoice(video, container, {
         answer: !data.answer,
         choices: ['True', 'False'],
         id: data.id,
-        mode: data.mode,
         question: data.question,
         tags: data.tags,
-    }, callback);
+    }, callback, remote);
+};
+
+/**
+ * Renderer for a remote true/false question
+ *
+ * @param video Video player object
+ * @param container Container for question to be rendered within
+ * @param data Question data
+ * @param callback Response callback
+ *
+ */
+CS50.Video.Render.TrueFalseRemote = function(video, container, data, callback) {
+    CS50.Video.Render.TrueFalse(video, container, data, callback, true);
 };

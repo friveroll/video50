@@ -15,7 +15,6 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         throw 'Error: A check URL must be defined!';
 
     // send answer to server
-    var me = this;
     $.ajax({
         dataType: 'jsonp',
         url: video.options.checkUrl,
@@ -25,7 +24,7 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         }, 
         success: function(response) {
             // inform the user if the response was correct
-            me.displayCorrectness(response.correct, video);
+            CS50.Video.Render.displayCorrectness(response.correct, video);
 
             // finish with this question
             callback.call(video, question.id, response.correct, {});
@@ -97,7 +96,7 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback, remo
         if (remote === undefined || remote === false) {
             // a correct answer matches the supplied regex
             var correct = $input.val().match(data.answer);
-            me.displayCorrectness(correct, video);
+            CS50.Video.Render.displayCorrectness(correct, video);
 
             // finish this question
             callback.call(video, data.id, correct, {});
@@ -105,7 +104,7 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback, remo
 
         // remote question
         else
-            me.checkRemote(data, $input.val(), video, callback);
+            CS50.Video.Render.checkRemote(data, $input.val(), video, callback);
 
         e.preventDefault();
         return false;
@@ -177,7 +176,7 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback, re
         if (remote === undefined || remote === false) {
             // the index of the selected answer must match the correct answer
             var correct = (data.answer == $container.find('input[type=radio]:checked').val());
-            me.displayCorrectness(correct, video);
+            CS50.Video.Render.displayCorrectness(correct, video);
 
             // finish this question
             callback.call(video, data.id, correct, {});
@@ -185,7 +184,7 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback, re
 
         // remote question
         else
-            me.checkRemote(data, $container.find('input[type=radio]:checked').val(), video, callback);
+            CS50.Video.Render.checkRemote(data, $container.find('input[type=radio]:checked').val(), video, callback);
 
         e.preventDefault();
         return false;
@@ -244,7 +243,7 @@ CS50.Video.Render.Numeric = function(video, container, data, callback, remote) {
         if (remote === undefined || remote === false) {
             var correct = (!isNaN(val) && val <= data.answer + data.answer * data.tolerance && 
                 val >= data.answer - data.answer * data.tolerance);
-            me.displayCorrectness(correct, video);
+            CS50.Video.Render.displayCorrectness(correct, video);
 
             // finish this question
             callback.call(video, data.id, correct, {});
@@ -252,7 +251,7 @@ CS50.Video.Render.Numeric = function(video, container, data, callback, remote) {
 
         // remote question
         else
-            me.checkRemote(data, val, video, callback);
+            CS50.Video.Render.checkRemote(data, val, video, callback);
 
         e.preventDefault();
         return false;

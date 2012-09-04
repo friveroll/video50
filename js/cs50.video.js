@@ -520,7 +520,7 @@ CS50.Video.prototype.showQuestion = function(id) {
             question.state = CS50.Video.QuestionState.UNANSWERED;
 
         // stop video so we can think, think, thiiiiiink
-        this.player.pause();
+        this.player.pause(true);
 
         // clear previous question contents and events
         var player = $(this.options.playerContainer);

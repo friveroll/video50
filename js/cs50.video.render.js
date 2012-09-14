@@ -10,9 +10,9 @@ CS50.Video.Render = CS50.Video.Render || {};
  *
  */
 CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
-    // make sure check url is defined
+    // if no check url defined, then use survey50
     if (!video.options.checkUrl)
-        throw 'Error: A check URL must be defined!';
+        video.options.checkUrl = 'http://apps.cs50.com/survey/questions/check';
 
     // send answer to server
     $.ajax({
@@ -20,7 +20,8 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         url: video.options.checkUrl,
         data: { 
             id: question.id,
-            answer: answer
+            answer: answer,
+            jsonp: true
         }, 
         success: function(response) {
             // inform the user if the response was correct

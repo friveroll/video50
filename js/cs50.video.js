@@ -13,12 +13,15 @@ var CS50 = CS50 || {};
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      playerOptions: Additional options to pass to the video player
+ *      mixpanelKey: API key for Mixpanel analytics
  *      notificationsContainer: Container to display question list within
  *      questions: List of questions to be displayed during video
  *      srt: Object mapping languages to SRT file locations
+ *      survey50: Survey ID if using survey50 integration
  *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
  *      transcriptContainer: Container to render transcript within
+ *      user: User object for analytics tracking
  *      video: URL of the video to play
  *
  */
@@ -37,12 +40,15 @@ CS50.Video = function(options) {
         autostart: true,
         checkUrl: false,
         defaultLanguage: 'en',
+        mixpanelKey: false,
         playbackRates: [0.75, 1, 1.25, 1.5],
         playerOptions: {},
         questions: [],
         srt: null,
+        survey50: false,
         swf: 'player.swf',
         title: '',
+        user: { id: 0, name: '' }
     }, this.options);
 
     // default options to video player
@@ -177,10 +183,33 @@ CS50.Video = function(options) {
     // sort questions by timecode
     this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); });
 
-    // instantiate video
-    this.createPlayer();
-    this.createNotifications();
-    this.loadSrt(this.options.defaultLanguage);
+    // initialize analytics
+    this.analytics50 = false;
+    if (this.options.mixpanelKey) {
+        this.analytics50 = new CS50.Analytics({
+             mixpanel: { 
+                 token: this.options.mixpanelKey
+             }
+        }, true);
+
+        // identify user
+        this.analytics50.identify(this.options.user.id);
+        this.analytics50.name_tag(this.options.user.name);
+
+        // log video view
+        this.analytics50.track('video50/load', { video: this.options.video });
+    }
+
+    // if survey50 ID given, then load questions remotely
+    if (this.options.survey50)
+        this.loadSurvey50();
+
+    // no survey50 usage, so use local questions
+    else {
+        this.createPlayer();
+        this.createNotifications();
+        this.loadSrt(this.options.defaultLanguage);
+    }
 };
 
 // question state constants
@@ -254,7 +283,7 @@ CS50.Video.prototype.createPlayer = function() {
     var me = this;
     this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
-        var height = width/me.options.aspectRatio;
+        var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);    
         $container.find('.flip-question-container').css({
             minHeight: height
@@ -264,12 +293,36 @@ CS50.Video.prototype.createPlayer = function() {
     // when resized, 
     $(window).on('resize', function() {
         var width = $container.find('.video-container').width();
-        var height = width/me.options.aspectRatio;
+        var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);
         $container.find('.flip-question-container').css({
             minHeight: height
         });
     }); 
+
+    // player fullscreen
+    this.player.onFullscreen(function(e) {
+        me.analytics50.track('video50/fullscreen', { video: me.options.video });
+    });
+
+    // player pause
+    this.player.onPause(function(e) {
+        me.analytics50.track('video50/pause', { video: me.options.video });
+    });
+
+    // player resume
+    this.player.onPlay(function(e) {
+        me.analytics50.track('video50/play', { video: me.options.video });
+    });
+
+    // player seek
+    this.player.onSeek(function(e) {
+        me.analytics50.track('video50/seek', { 
+            from: e.position,
+            to: e.offset,
+            video: me.options.video 
+        });
+    });
 
     // update questions and transcripts as video plays
     this.player.onTime(function(e) {
@@ -478,6 +531,66 @@ CS50.Video.prototype.loadSrt = function(language) {
 };
 
 /**
+ * Load questions from survey50
+ *
+ */
+CS50.Video.prototype.loadSurvey50 = function() {
+    // renders for survey50 question types
+    var renderers = {
+        0: CS50.Video.Render.MultipleChoiceRemote,
+        1: CS50.Video.Render.NumericRemote,
+        2: CS50.Video.Render.FreeResponseRemote,
+        3: CS50.Video.Render.TrueFalseRemote
+    };
+
+    // load questions from survey50
+    var me = this;
+    $.ajax('http://apps.cs50.com/survey/surveys/get/' + this.options.survey50, {
+        data: {
+            jsonp: true
+        },
+        dataType: 'jsonp',
+        success: function(response) {
+            me.options.questions = [];
+            _.each(response.Questions, function(e) {
+                // parse question data/metadata
+                var data = {};
+                var metadata = {};
+                if (e.question_data)
+                    data = JSON.parse(e.question_data);
+                if (e.metadata)
+                    metadata = JSON.parse(e.metadata);
+
+                // timecode must be defined for video50 questions
+                if (metadata.timecode) {
+                    // add basic question data
+                    var question = {
+                        timecode: metadata.timecode,
+                        question: {
+                            id: e.id,
+                            question: e.question,
+                            render: renderers[e.type],
+                            tags: metadata.tags || []
+                        }
+                    };
+
+                    // add each key from question data
+                    for (var key in data)
+                        question.question[key] = data[key];
+
+                    me.options.questions.push(question);
+                }
+            });
+
+            // load video player
+            me.createPlayer();
+            me.createNotifications();
+            me.loadSrt(me.options.defaultLanguage);
+        }
+    });
+};
+
+/**
  * Callback for logging question data
  * 
  * @param id ID of question that was answered
@@ -491,6 +604,14 @@ CS50.Video.prototype.renderCallback = function(id, correct, data) {
 
     // keep track of new question state locally
     question.state = (correct) ? CS50.Video.QuestionState.CORRECT : CS50.Video.QuestionState.INCORRECT;
+
+    // log event
+    if (this.analytics50)
+        this.analytics50.track('video50/answerQuestion', {
+            correct: correct,
+            id: id,
+            video: this.options.video
+        });
 
     // update notifications container
     var $cell = $(this.options.notificationsContainer).find('[data-question-id=' + id + ']').find('.question-state');
@@ -511,6 +632,13 @@ CS50.Video.prototype.showQuestion = function(id) {
     var question = _.find(this.options.questions, function(e) { return e.question.id == id; });
 
     if (question) {
+        // log question view
+        if (this.analytics50)
+            this.analytics50.track('video50/viewQuestion', {
+                id: id,
+                video: this.options.video
+            });
+
         // keep track of the current question
         this.currentQuestion = id;
         $('.video50-txt-answer').remove();

@@ -9,6 +9,7 @@ cat \
     js/lib/bootstrap.min.js \
     js/lib/jquery.scroll.js \
     js/lib/jwplayer.js \
+    js/lib/cs50.analytics.js \
     js/cs50.video.js \
     js/cs50.video.render.js \
     > build/cs50.video.min.js

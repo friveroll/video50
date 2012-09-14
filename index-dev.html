@@ -8,6 +8,7 @@
         <script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
         <script type="text/javascript" src="js/lib/jquery.scroll.js"></script>
         <script type="text/javascript" src="js/lib/jwplayer.js"></script>
+        <script type="text/javascript" src="js/lib/cs50.analytics.js"></script>
         <script type="text/javascript" src="js/cs50.video.js"></script>
         <script type="text/javascript" src="js/cs50.video.render.js"></script>
 
@@ -49,7 +50,7 @@
             $(function() {
                 var player = new CS50.Video({
                     autostart: true,
-                    checkUrl: 'http://tommymacwilliam.com/test.php',
+                    mixpanelKey: '49c79a74811ced39cdb8f8433861ec2f',
                     notificationsContainer: '#questions',
                     playerContainer: '#video',
                     playerOptions: {
@@ -62,6 +63,7 @@
                         'en': 'week0w-en.srt',
                         'pt': 'week0w-pt.srt'
                     },
+                    survey50: 1,
                     title: 'Lecture 0: Wednesday',
                     transcriptContainer: '#transcript',
                     video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4'

@@ -20,7 +20,6 @@ var CS50 = CS50 || {};
  *      survey50: Survey ID if using survey50 integration
  *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
- *      transcriptContainer: Container to render transcript within
  *      user: User object for analytics tracking
  *      video: URL of the video to play
  *
@@ -95,12 +94,28 @@ CS50.Video = function(options) {
                 <div class="player-navbar"> \
                     <button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
                     <div class="player-navbar-title"><%= title %></div> \
+                    <div class="btn-group btn-group-transcript"> \
+                        <button class="btn btn-transcript">Transcript</button> \
+                        <button class="btn dropdown-toggle" data-toggle="dropdown"> \
+                            <span class="caret"></span> \
+                        </button> \
+                        <ul class="dropdown-menu transcript-lang"> \
+                            <% for (var i in srt) { %> \
+                                <li> \
+                                    <a href="#" data-lang="<%= i %>"><%= i %></a> \
+                                </li> \
+                            <% } %> \
+                        </ul> \
+                    </div> \
                 </div> \
                 <div class="flip-container"> \
                     <div class="video-container"><div></div></div> \
                     <div class="flip-question-container video50-question"> \
                         <div class="question-content"></div> \
                     </div> \
+                </div> \
+                <div class="transcript-container"> \
+                    <div class="transcript-text"></div> \
                 </div> \
             </div> \
         ',
@@ -134,33 +149,6 @@ CS50.Video = function(options) {
                 </td> \
             </tr> \
         ',
-
-        transcript: ' \
-            <div class="video50-transcript"> \
-                <div class="video50-transcript-controls-wrapper"> \
-                    <input id="video50-transcript-auto" type="checkbox" checked="checked" /> \
-                    <label for="video50-transcript-auto">Automatically scroll transcript</label> \
-                    <div class="video50-transcript-lang btn-group"> \
-                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> \
-                            <%= language %> <span class="caret"></span> \
-                        </a> \
-                        <ul class="dropdown-menu"> \
-                            <% for (var i in srt) { %> \
-                                <% if (i != language) { %> \
-                                    <li> \
-                                        <a href="#" data-lang="<%= i %>"><%= i %></a> \
-                                    </li> \
-                                <% } %> \
-                            <% } %> \
-                        </ul> \
-                    </div> \
-                </div> \
-                <div class="video50-transcript-container"> \
-                    <div class="video50-transcript-text"> \
-                    </div> \
-                </div> \
-            </div> \
-        '
     };
 
     // compile templates
@@ -285,9 +273,8 @@ CS50.Video.prototype.createPlayer = function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);    
-        $container.find('.flip-question-container').css({
-            minHeight: height
-        });
+        $container.find('.flip-question-container').css({ minHeight: height });
+        $container.find('.transcript-container').css({ height: height });
     });
     
     // when resized, 
@@ -295,9 +282,8 @@ CS50.Video.prototype.createPlayer = function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);
-        $container.find('.flip-question-container').css({
-            minHeight: height
-        });
+        $container.find('.flip-question-container').css({ minHeight: height });
+        $container.find('.transcript-container').css({ height: height });
     }); 
 
     // player fullscreen
@@ -396,6 +382,15 @@ CS50.Video.prototype.createPlayer = function() {
         // fade video back in while flip is occurring for smoothness
         $container.find('.video-container').fadeIn('medium');
     });
+
+    // when transcript button pressed, toggle transcript
+    $container.on('click', '.btn-transcript', function(e) {
+        var $transcript = $container.find('.transcript-container');
+        if ($transcript.is(':hidden'))
+            $container.find('.transcript-container').fadeIn('medium');
+        else
+            $container.find('.transcript-container').fadeOut('medium');
+    });
 };
 
 /**
@@ -458,15 +453,9 @@ CS50.Video.prototype.loadSrt = function(language) {
             var timecodes = response.split(/\n\s*\n/);
 
             // if transcript container is given, then build transcript
-            if (me.options.transcriptContainer) {
-                // create transcript container
-                $(me.options.transcriptContainer).html(me.templates.transcript({
-                    srt: me.options.srt,
-                    language: language
-                }));
-
+            if (_.keys(me.options.srt).length) {
                 // clear previous text
-                var $container = $(me.options.transcriptContainer).find('.video50-transcript-text');
+                var $container = $(me.options.playerContainer).find('.transcript-text');
                 $container.empty();
 
                 // iterate over each timecode
@@ -494,22 +483,10 @@ CS50.Video.prototype.loadSrt = function(language) {
                 }
 
                 // when transcript language is changed, refresh srt data and captioning
-                $(me.options.transcriptContainer).on('click', '.video50-transcript-lang a[data-lang]', function() {
+                $(me.options.playerContainer).on('click', '.transcript-lang a[data-lang]', function() {
                     // refresh transcript
                     var lang = $(this).attr('data-lang');
                     me.loadSrt(lang);
-
-                    // change language in player if captions have been turned on by user
-                    if ($(me.options.playerContainer).find('.mejs-captions-selector input[type=radio]:checked').attr('value') != 'none')
-                        $(me.options.playerContainer).find('.mejs-captions-selector input[value="' + lang + '"]').click();
-                });
-
-                // when captioning is changed, refresh srt data
-                $(me.options.playerContainer).on('click', '.mejs-captions-selector input[type=radio]', function() {
-                    var lang = $(this).attr('value');
-
-                    if (lang != 'none')
-                        me.loadSrt(lang);
                 });
 
                 // when a line is clicked, seek to that time in the video
@@ -523,10 +500,10 @@ CS50.Video.prototype.loadSrt = function(language) {
 
                 // keep track of scroll state so we don't auto-seek the transcript when the user scrolls
                 me.disableTranscriptAutoSeek = false;
-                $(me.options.transcriptContainer).find('.video50-transcript-container').on('scrollstart', function() {
+                $(me.options.playerContainer).find('.transcript-container').on('scrollstart', function() {
                     me.disableTranscriptAutoSeek = true;
                 });
-                $(me.options.transcriptContainer).find('.video50-transcript-container').on('scrollstop', function() {
+                $(me.options.playerContainer).find('.transcript-container').on('scrollstop', function() {
                     me.disableTranscriptAutoSeek = false;
                 });
             }
@@ -682,7 +659,7 @@ CS50.Video.prototype.showQuestion = function(id) {
  */
 CS50.Video.prototype.updateTranscriptHighlight = function(time) {
     var time = Math.floor(time.position);
-    var $container = $(this.options.transcriptContainer);
+    var $container = $(this.options.playerContainer).find('.transcript-container');
     var $active = $container.find('[data-time="' + time + '"]');
 
     // check if a new element should be highlighted
@@ -694,9 +671,10 @@ CS50.Video.prototype.updateTranscriptHighlight = function(time) {
         $active.addClass('highlight');
 
         // put the current element in the middle of the transcript if user is not scrolling
-        if (!this.disableTranscriptAutoSeek && $container.find('#video50-transcript-auto').is(':checked')) {
+        if (!this.disableTranscriptAutoSeek) {
             var top = $active.position().top - parseInt($container.height() / 2);
-            $container.find('.video50-transcript-container').animate({ scrollTop: top });
+            if (top > 0)
+                $container.animate({ scrollTop: top });
         }
     }
 };

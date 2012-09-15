@@ -63,6 +63,12 @@
     text-align: center;
 }
 
+.video50-player .player-navbar .btn-group-transcript {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
 .video50-player .flip-container {
     -webkit-transition: -webkit-transform 1s;
     -moz-transition: -moz-transform 1s;
@@ -113,6 +119,38 @@
     backface-visibility: visible !important;
 }
 
+.video50-player .transcript-container {
+    display: none;
+    position: absolute;
+    background: white;
+    width: 100%;
+    z-index: 10;
+    top: 37px;
+    overflow: auto;
+    opacity: 0.9;
+    -moz-opacity: 0.9;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+}
+
+.video50-player .transcript-text {
+    position: relative;
+}
+
+.video50-player .transcript-text a {
+    color: black;
+}
+
+.video50-player .transcript-text a.highlight {
+    color: #08C;
+    font-weight: bold;
+}
+
+.video50-player .transcript-controls {
+    opacity: 1.0;
+    -moz-opacity: 1.0;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+}
+
 .video50-notifications tbody td {
     -webkit-animation:pop-in 0.3s;
     -moz-animation:pop-in 0.3s;
@@ -154,7 +192,7 @@
     transform: rotateY(180deg);
 }
 
-.video50-question label, .video50-notifications label, .video50-transcript label {
+.video50-question label, .video50-notifications label {
     display: inline;
     margin-left: 5px;
     vertical-align: middle;
@@ -192,42 +230,6 @@
 .video50-question .btn-submit {
     clear: both;
     display: block;
-}
-
-.video50-transcript-lang {
-    display: inline-block;
-    vertical-align: middle;
-}
-
-.video50-transcript {
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-}
-
-.video50-transcript-container {
-    height: 360px;
-    overflow: auto;
-    border-top: 1px solid #ccc;
-    padding: 30px;
-}
-
-.video50-transcript-controls-wrapper {
-    padding: 5px 10px;
-}
-
-.video50-transcript-text {
-    position: relative;
-}
-
-.video50-transcript-text a {
-    color: black;
-}
-
-.video50-transcript-text a.highlight {
-    color: #08C;
-    font-weight: bold;
 }
 
 @-webkit-keyframes pop-in {

@@ -49,6 +49,7 @@
 
             $(function() {
                 var player = new CS50.Video({
+                    aspectRatio: 720 / 480,
                     autostart: true,
                     notificationsContainer: '#questions',
                     playerContainer: '#video',
@@ -58,6 +59,10 @@
                         file: "2011/fall/lectures/0/week0w.mp4"
                     },
                     questions: questions,
+                    srt: {
+                        en: 'week0w-en.srt',
+                        pt: 'week0w-pt.srt'
+                    },
                     survey50: 1,
                     title: 'Lecture 0: Wednesday',
                     transcriptContainer: '#transcript',
@@ -274,7 +279,7 @@
         </div>
         <div id="content-wrapper-outer">
             <div id="content-wrapper-inner">
-                <div id="video-wrapper" class="panel" style="width: 720px; height: 480px">
+                <div id="video-wrapper" class="panel" style="width: 720px">
                     <div id="video"></div>
                 </div>
                 <div id="transcript" class="panel-inset"></div>

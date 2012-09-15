@@ -108,7 +108,7 @@ CS50.Video = function(options) {
                         </ul> \
                     </div> \
                     <button class="btn btn-questions"> \
-                        <span class="questions-number">5</span> \
+                        <span class="questions-number">0</span> \
                         Questions \
                     </button> \
                 </div> \
@@ -199,6 +199,11 @@ CS50.Video = function(options) {
 
     // no survey50 usage, so use local questions
     else {
+        // mark all questions as unseen
+        _.each(this.options.questions, function(e) {
+            e.state = CS50.Video.QuestionState.UNSEEN;
+        });
+
         this.createPlayer();
         this.createNotifications();
         this.loadSrt(this.options.defaultLanguage);
@@ -227,6 +232,7 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
 
     // check if any of the given questions should be displayed at this timecode
     var me = this;
+    var unseen = 0;
     _.each(this.options.questions, function(e, i) {
         // question should be shown if timecodes match and it isn't already shown
         if (e.timecode <= Math.floor(time.position) && 
@@ -245,7 +251,15 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
                     placement: 'right'
                 });
             }
+
         }
+
+        // keep track of questions that haven't been seen yet
+        if (e.timecode <= Math.floor(time.position) && e.state == CS50.Video.QuestionState.UNSEEN)
+            unseen++;
+
+        // update question count
+        $(me.options.playerContainer).find('.questions-number').text(unseen);
     })
 };
 
@@ -588,6 +602,7 @@ CS50.Video.prototype.loadSurvey50 = function() {
                     for (var key in data)
                         question.question[key] = data[key];
 
+                    question.state = CS50.Video.QuestionState.UNSEEN;
                     me.options.questions.push(question);
                 }
             });

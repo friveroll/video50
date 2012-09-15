@@ -44,7 +44,7 @@ CS50.Video = function(options) {
         playbackRates: [0.75, 1, 1.25, 1.5],
         playerOptions: {},
         questions: [],
-        srt: null,
+        srt: {},
         survey50: false,
         swf: 'player.swf',
         title: '',
@@ -302,26 +302,30 @@ CS50.Video.prototype.createPlayer = function() {
 
     // player fullscreen
     this.player.onFullscreen(function(e) {
-        me.analytics50.track('video50/fullscreen', { video: me.options.video });
+        if (me.analytics50)
+            me.analytics50.track('video50/fullscreen', { video: me.options.video });
     });
 
     // player pause
     this.player.onPause(function(e) {
-        me.analytics50.track('video50/pause', { video: me.options.video });
+        if (me.analytics50)
+            me.analytics50.track('video50/pause', { video: me.options.video });
     });
 
     // player resume
     this.player.onPlay(function(e) {
-        me.analytics50.track('video50/play', { video: me.options.video });
+        if (me.analytics50)
+            me.analytics50.track('video50/play', { video: me.options.video });
     });
 
     // player seek
     this.player.onSeek(function(e) {
-        me.analytics50.track('video50/seek', { 
-            from: e.position,
-            to: e.offset,
-            video: me.options.video 
-        });
+        if (me.analytics50)
+            me.analytics50.track('video50/seek', { 
+                from: e.position,
+                to: e.offset,
+                video: me.options.video 
+            });
     });
 
     // update questions and transcripts as video plays

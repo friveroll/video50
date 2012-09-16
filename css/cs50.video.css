@@ -171,8 +171,46 @@
     background: white;
     background: rgba(255, 255, 255, .9);
     z-index: 10;
+}
+
+.video50-player .transcript-container .transcript-text-wrapper {
     overflow: auto;
-    padding: 0px 20px 20px 20px;
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+    padding: 20px 20px 20px 20px;
+}
+
+.video50-player .transcript-container .transcript-search-wrapper {
+    position: absolute;
+    top: 0px;
+    right: 20px;  
+    padding: 5px 8px;
+    background-color: white;
+    border-radius: 0px 0px 3px 3px;
+    -moz-border-radius: 0px 0px 3px 3px;
+    -webkit-border-radius: 0px 0px 3px 3px;
+    box-shadow: 0px 1px 2px #BBB;
+    -webkit-box-shadow: 0px 1px 2px #BBB;
+    -moz-box-shadow: 0px 1px 2px #BBB;
+}
+
+.video50-player .transcript-container .transcript-search-wrapper i {
+    display: inline-block;
+    margin: 1px 3px;
+    opacity: .8;
+}
+
+.video50-player .transcript-container .transcript-search-wrapper .transcript-search {
+    border: 1px solid #DDD;
+    outline: 0px;
+    padding: 3px;
+}
+
+.video50-player .transcript-container .transcript-search-wrapper .transcript-search:focus {
+    border: 1px solid #BBB;
 }
 
 .video50-player .transcript-text {

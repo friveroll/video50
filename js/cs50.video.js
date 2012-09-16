@@ -116,7 +116,13 @@ CS50.Video = function(options) {
                     <div class="video-container"><div></div></div> \
                     <div class="modal-container"> \
                         <div class="transcript-container"> \
-                            <div class="transcript-text"></div> \
+                            <div class="transcript-text-wrapper"> \
+                                <div class="transcript-text"></div> \
+                            </div> \
+                            <div class="transcript-search-wrapper"> \
+                                <input class="transcript-search" placeholder="Search...">\
+                                <i class="icon-search"></i> \
+                            </div> \
                         </div> \
                     </div> \
                     <div class="flip-question-container video50-question"> \
@@ -155,6 +161,10 @@ CS50.Video = function(options) {
                 </td> \
             </tr> \
         ',
+    };
+
+    jQuery.expr[':'].Contains = function(a, i, m) {
+          return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
     };
 
     // compile templates
@@ -551,6 +561,19 @@ CS50.Video.prototype.loadSrt = function(language) {
 
                     if (time)   
                         player.seek(Math.floor(time));
+                });
+
+                // searching over a transcript
+                $(me.options.playerContainer).on('keyup', '.transcript-search', function() {
+                    if ($.trim($(this).val()) == "") {
+                        $(me.options.playerContainer).find("[data-time], br")
+                            .css({ "display": "inline", "margin-bottom": "0px" });
+                    }
+                    else {
+                        $(me.options.playerContainer).find("[data-time], br").hide();
+                        $(me.options.playerContainer).find("[data-time]:Contains('" + $(this).val() + "')")
+                            .show().css({ "display": "block", "margin-bottom": "10px" });
+                    }
                 });
 
                 // keep track of scroll state so we don't auto-seek the transcript when the user scrolls

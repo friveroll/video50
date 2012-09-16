@@ -543,7 +543,7 @@ CS50.Video.prototype.loadSrt = function(language) {
                         var seconds = parseInt(time[1], 10) * 3600 + parseInt(time[2], 10) * 60 + parseInt(time[3], 10);
 
                         // add line to transcript
-                        $container.append('<a href="#" data-time="' + seconds + '">' + content + '</a>');
+                        $container.append('<a href="#" data-time="' + seconds + '">' + content + '</a> ');
                     }
                 }
 

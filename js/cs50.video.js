@@ -107,9 +107,14 @@ CS50.Video = function(options) {
                             <% } %> \
                         </ul> \
                     </div> \
+                    <button class="btn btn-questions"> \
+                        <span class="questions-number">5</span> \
+                        Questions \
+                    </button> \
                 </div> \
                 <div class="flip-container"> \
                     <div class="video-container"><div></div></div> \
+                    <div class="modal-container"></div> \
                     <div class="flip-question-container video50-question"> \
                         <div class="question-content"></div> \
                     </div> \
@@ -380,7 +385,9 @@ CS50.Video.prototype.createPlayer = function() {
         $('.video50-txt-answer').remove();
 
         // fade video back in while flip is occurring for smoothness
-        $container.find('.video-container').fadeIn('medium');
+        $container.find('.video-container').fadeIn(900, function() {
+            $container.find('.modal-container').fadeIn();
+        });
     });
 
     // when transcript button pressed, toggle transcript
@@ -398,6 +405,28 @@ CS50.Video.prototype.createPlayer = function() {
  *
  */
 CS50.Video.prototype.createNotifications = function() {
+    var me = this;
+    var $player = $(this.options.playerContainer);
+    
+    // use default notification center if one does not exist
+    if (!this.options.notificationsContainer) {
+        var $modal = $player.find('.video50-player .modal-container');
+        me.options.notificationsContainer = $('<div class="video50-player-questions panel">').hide()[0];
+       
+        // toggle modal when button clicked
+        var $container = $(me.options.notificationsContainer);
+        $modal.append($container);
+        $player.on('click', '.btn-questions', function() {
+            if ($container.is(":visible"))
+                $container.slideUp('fast');
+            else
+                $container.slideDown('fast');
+        });
+    } else {
+        // if it does exist, hide question modal trigger
+        $player.find('.btn-questions').hide(); 
+    };
+
     // build notifications container
     var $container = $(this.options.notificationsContainer);
     $container.html(this.templates.notifications());
@@ -640,11 +669,14 @@ CS50.Video.prototype.showQuestion = function(id) {
         question.question.render(this, $container, question.question, this.renderCallback);
 
         // flip player to show question
-        $(this.options.playerContainer).find('.video-container').fadeOut('medium');
-        if (this.supportsFlip)
-            $(this.options.playerContainer).find('.flip-container').addClass('flipped');
-        else
-            $(this.options.playerContainer).find('.flip-question-container').fadeIn('fast');
+        var me = this;
+        $(this.options.playerContainer).find('.modal-container').fadeOut(100, function() {
+            $(me.options.playerContainer).find('.video-container').fadeOut(900);
+            if (me.supportsFlip)
+                $(me.options.playerContainer).find('.flip-container').addClass('flipped');
+            else
+                $(me.options.playerContainer).find('.flip-question-container').fadeIn('fast');
+        });
 
         // display back button
         setTimeout(function() {

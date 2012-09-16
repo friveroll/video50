@@ -114,13 +114,14 @@ CS50.Video = function(options) {
                 </div> \
                 <div class="flip-container"> \
                     <div class="video-container"><div></div></div> \
-                    <div class="modal-container"></div> \
+                    <div class="modal-container"> \
+                        <div class="transcript-container"> \
+                            <div class="transcript-text"></div> \
+                        </div> \
+                    </div> \
                     <div class="flip-question-container video50-question"> \
                         <div class="question-content"></div> \
                     </div> \
-                </div> \
-                <div class="transcript-container"> \
-                    <div class="transcript-text"></div> \
                 </div> \
             </div> \
         ',
@@ -293,7 +294,6 @@ CS50.Video.prototype.createPlayer = function() {
         var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);    
         $container.find('.flip-question-container').css({ minHeight: height });
-        $container.find('.transcript-container').css({ height: height });
     });
     
     // when resized, 
@@ -302,7 +302,6 @@ CS50.Video.prototype.createPlayer = function() {
         var height = width / me.options.aspectRatio;
         jwplayer().resize(width, height);
         $container.find('.flip-question-container').css({ minHeight: height });
-        $container.find('.transcript-container').css({ height: height });
     }); 
 
     // player fullscreen
@@ -407,10 +406,7 @@ CS50.Video.prototype.createPlayer = function() {
     // when transcript button pressed, toggle transcript
     $container.on('click', '.btn-transcript', function(e) {
         var $transcript = $container.find('.transcript-container');
-        if ($transcript.is(':hidden'))
-            $container.find('.transcript-container').fadeIn('medium');
-        else
-            $container.find('.transcript-container').fadeOut('medium');
+        me.toggleModal($transcript);
     });
 };
 
@@ -431,10 +427,7 @@ CS50.Video.prototype.createNotifications = function() {
         var $container = $(me.options.notificationsContainer);
         $modal.append($container);
         $player.on('click', '.btn-questions', function() {
-            if ($container.is(":visible"))
-                $container.slideUp('fast');
-            else
-                $container.slideDown('fast');
+            me.toggleModal($container);
         });
     } else {
         // if it does exist, hide question modal trigger
@@ -479,6 +472,25 @@ CS50.Video.prototype.createNotifications = function() {
         }
     });
 };
+
+/**
+ * Swaps out the current modal for the one passed in, or toggles if already visible
+ *
+ * @param modal jquery object for the modal to show
+ *
+ */
+CS50.Video.prototype.toggleModal = function(modal) {
+    $container = $(this.options.playerContainer).find(".modal-container");
+    if (modal.is(':hidden')) {
+        $container.children().not(modal).slideUp('fast', function() {
+            modal.slideDown('fast');
+        });
+    }
+    else
+        modal.slideUp('fast');
+
+    return modal;
+}
 
 /**
  * Load the specified SRT file

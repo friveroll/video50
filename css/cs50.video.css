@@ -32,14 +32,6 @@
     perspective: 800px;
 }
 
-.video50-player .flip-container .modal-container {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
-}
-
 .video50-player .video50-player-questions {
     position: absolute;
     left: 20px;
@@ -53,14 +45,6 @@
 
 .video50-player-questions .table-striped {
     border: 0px;
-}
-
-.video50-player .flip-container .modal-container {
-    position: absolute;
-    top: 0px;
-    left: 0px;
-    right: 0px;
-    bottom: 0px;
 }
 
 .video50-player .player-navbar {
@@ -180,14 +164,15 @@
 .video50-player .transcript-container {
     display: none;
     position: absolute;
+    top: 0px;
+    bottom: 28px;
+    left: 0px;
+    right: 0px;
     background: white;
-    width: 100%;
+    background: rgba(255, 255, 255, .9);
     z-index: 10;
-    top: 37px;
     overflow: auto;
-    opacity: 0.9;
-    -moz-opacity: 0.9;
-    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=90)";
+    padding: 0px 20px 20px 20px;
 }
 
 .video50-player .transcript-text {

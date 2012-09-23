@@ -344,11 +344,15 @@ CS50.Video.prototype.createPlayer = function() {
 
     // update questions and transcripts as video plays
     this.player.onTime(function(e) {
-        // check if a new question is available
-        me.checkQuestionAvailable(e);
+        if (!this.lastUpdate || (this.lastUpdate + 500) < (new Date).getTime()) {
+            // check if a new question is available
+            me.checkQuestionAvailable(e);
 
-        // update highlight on the transcript
-        me.updateTranscriptHighlight(e);
+            // update highlight on the transcript
+            me.updateTranscriptHighlight(e);
+
+            this.lastUpdate = (new Date).getTime();
+        }
     });
 
     this.player.onReady(function() {
@@ -439,10 +443,11 @@ CS50.Video.prototype.createNotifications = function() {
         $player.on('click', '.btn-questions', function() {
             me.toggleModal($container);
         });
-    } else {
-        // if it does exist, hide question modal trigger
+    } 
+    
+    // if it does exist, hide question modal trigger
+    else
         $player.find('.btn-questions').hide(); 
-    };
 
     // build notifications container
     var $container = $(this.options.notificationsContainer);

@@ -90,7 +90,7 @@ CS50.Video = function(options) {
         ',
 
         player: ' \
-            <div class="video50-player"> \
+            <div class="video50-player panel"> \
                 <div class="player-navbar"> \
                     <button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
                     <div class="player-navbar-title"><%= title %></div> \

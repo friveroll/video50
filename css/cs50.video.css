@@ -24,12 +24,23 @@
     margin-bottom: 0px;
 }
 
+.video50-player .panel, .video50-player.panel {
+    background-color: #FFFFFF;
+    border-top: 1px solid #DDD;
+    -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px; 
+}
+
 .video50-player {
     position: relative;
     -webkit-perspective: 800px;
     -moz-perspective: 800px;
     -o-perspective: 800px;
     perspective: 800px;
+    border-radius: 4px 4px 0px 0px;
+    -moz-border-radius: 4px 4px 0px 0px;
+    -webkit-border-radius: 4px 4px 0px 0px;
 }
 
 .video50-player .video50-player-questions {
@@ -43,12 +54,9 @@
     -moz-border-radius: 0px 0px 5px 5px;
 }
 
-.video50-player-questions .table-striped {
-    border: 0px;
-}
-
 .video50-player .player-navbar {
-    border: 1px solid #ddd;
+    border: 0px;
+    border-bottom: 1px solid #ccc;
     -webkit-border-top-left-radius: 4px;
     -webkit-border-top-right-radius: 4px;
     -moz-border-radius-topleft: 4px;
@@ -232,6 +240,12 @@
     -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
 }
 
+.video50-notifications table {
+    border-width: 0px 0px 1px 0px;
+    border-radius: 0px;
+    margin-bottom: 0px;
+}
+
 .video50-notifications tbody td {
     -webkit-animation:pop-in 0.3s;
     -moz-animation:pop-in 0.3s;
@@ -249,9 +263,13 @@
     margin-bottom: 5px;
 }
 
+.video50-notifications table tr td {
+    border-left: 0px;
+}
+
 .video50-question {
+    border: 0px;
     background: #fafafa;
-    border: 1px solid #ddd;
     border-radius: 4px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;

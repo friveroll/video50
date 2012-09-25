@@ -299,18 +299,19 @@ CS50.Video.prototype.createPlayer = function() {
 
     // create video player
     var me = this;
+    var NAVBAR_HEIGHT = 29;
     this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer().resize(width, height);    
+        jwplayer().resize(width, height - NAVBAR_HEIGHT);    
         $container.find('.flip-question-container').css({ minHeight: height });
     });
-    
+
     // when resized, 
     $(window).on('resize', function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer().resize(width, height);
+        jwplayer().resize(width, height - NAVBAR_HEIGHT);
         $container.find('.flip-question-container').css({ minHeight: height });
     }); 
 
@@ -318,6 +319,11 @@ CS50.Video.prototype.createPlayer = function() {
     this.player.onFullscreen(function(e) {
         if (me.analytics50)
             me.analytics50.track('video50/fullscreen', { video: me.options.video });
+        
+        if (e.fullscreen)
+            $container.find('.video50-player').addClass('fullscreen');
+        else
+            $container.find('.video50-player').removeClass('fullscreen');
     });
 
     // player pause

@@ -43,6 +43,13 @@
     -webkit-border-radius: 4px 4px 0px 0px;
 }
 
+.video50-player.fullscreen {
+    -webkit-perspective: none;
+    -moz-perspective: none;
+    -o-perspective: none;
+    perspective: none;
+}
+
 .video50-player .video50-player-questions {
     position: absolute;
     left: 20px;
@@ -115,6 +122,7 @@
 }
 
 .video50-player .flip-container {
+    position: relative;
     -webkit-transition: -webkit-transform 1s;
     -moz-transition: -moz-transform 1s;
     -o-transition: -o-transform 1s;
@@ -130,6 +138,13 @@
     -moz-transform: rotateY(180deg);
     -o-transform: rotateY(180deg);
     transform: rotateY(180deg);
+}
+
+.video50-player.fullscreen .flip-container {
+    -webkit-transform-style: flat;
+    -moz-transform-style: flat;
+    -o-transform-style: flat;
+    transform-style: flat;
 }
 
 .video50-player .flip-container .video-container {

@@ -114,6 +114,7 @@ CS50.Video = function(options) {
                         </ul> \
                     </div> \
                 <% } %> \
+                <a class="btn btn-download" href="#" target="_blank">Download</a> \
                 <ul class="nav nav-pills"> \
                     <% for (var i in rates) { %> \
                         <li data-rate="<%= rates[i] %>" class="btn-playback-rate"> \
@@ -446,6 +447,18 @@ CS50.Video.prototype.createPlayer = function() {
             me.player.seek(position);
             
             return false;
+        });
+
+        // download pressed
+        $playbackContainer.on('click', '.btn-download', function(e) {
+            // if base url given, prefix video
+            var video = me.options.playerOptions.file;
+            var html5Video = video;
+            if (me.options.videoUrl)
+                html5Video = me.options.videoUrl + html5Video;
+
+            // point download button at video
+            $(this).attr('href', html5Video);
         });
     });
 

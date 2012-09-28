@@ -674,6 +674,13 @@ CS50.Video.prototype.loadSurvey50 = function() {
             if (!response.authenticated)
                 window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
 
+            // save authenticated user
+            me.options.user = response.user;
+            if (me.analytics50) {
+                me.analytics50.identify(me.options.user.id);
+                me.analytics50.name_tag(me.options.user.name);
+            }
+
             // load questions from survey50
             $.ajax(me.options.survey50Url + '/survey/surveys/get/' + me.options.survey50, {
                 data: {

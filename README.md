@@ -8,23 +8,22 @@ Video50 is an extensible video player that allows a variety of question types to
 To create a new CS50 Video player, instantiate a new `CS50.Video` object:
 
     var player = new CS50.Video({
+        aspectRatio: 720 / 480,
         autostart: true,
-        checkUrl: 'http://tommymacwilliam.com/test.php',
-        notificationsContainer: '#questions',
+        defaultVideo: '720p',
         playerContainer: '#video',
-        playerOptions: {
-            provider: "rtmp",
-            streamer: "rtmp://stream.cs50.net/cfx/st/",
-            file: "2011/fall/lectures/0/week0w.mp4"
-        },
         questions: questions,
         srt: {
-            'en': 'week0w-en.srt',
-            'pt': 'week0w-pt.srt'
+            en: 'week0w-en.srt',
+            pt: 'week0w-pt.srt'
         },
         title: 'Lecture 0: Wednesday',
-        transcriptContainer: '#transcript',
-        video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4'
+        video: {
+            '360p': '2011/fall/lectures/0/week0f.mp4',
+            '720p': '2011/fall/lectures/0/week0w.mp4'
+        },
+        streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
+        videoUrl: 'http://cdn.cs50.net/'
     });
 
 The options object passed to the `CS50.Video` constructor can define the following keys:
@@ -33,17 +32,20 @@ The options object passed to the `CS50.Video` constructor can define the followi
 * `autostart`: True to start video automatically, false otherwise
 * `checkUrl`: URL to be used for checking the answers to questions remotely
 * `defaultLanguage`: Default language for transcript and subtitles
-* `playbackContainer`: Container to render playback controls within
+* `defaultVideo`: If using multiple video URLs, the video to play by default
 * `playbackRates`: List of supported playback rates
 * `playerContainer`: Container to render player within
 * `playerOptions`: Additional options to pass to the video player
-* `notificationsContainer`: Container to display question list within
+* `mixpanelKey`: API key for Mixpanel analytics
 * `questions`: List of questions to be displayed during video
 * `srt`: Object mapping languages to SRT file locations
+* `streamUrl`: Base URL for RTMP streaming
+* `survey50`: Survey ID if using survey50 integration for server-side question checking
 * `swf`: SWF file to fall back on for unsupported browsers
 * `title`: Title of Video
-* `transcriptContainer`: Container to render transcript within
-* `video`: URL of the video to play
+* `user`: User object for analytics tracking
+* `video`: String of single video URL, or object containing multiple video URLs (if using RTMP streaming, this must be relative to streamUrl and videoUrl)
+* `videoUrl`: Only used if using RTMP streaming; base URL for video file
 
 Of these keys, `playerContainer` and `video` are required.
 

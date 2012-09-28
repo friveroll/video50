@@ -9,19 +9,21 @@ var CS50 = CS50 || {};
  *      autostart: True to start video automatically, false otherwise
  *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
- *      playbackContainer: Container to render playback controls within
+ *      defaultVideo: If using multiple video URLs, the video to play by default
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      playerOptions: Additional options to pass to the video player
  *      mixpanelKey: API key for Mixpanel analytics
- *      notificationsContainer: Container to display question list within
  *      questions: List of questions to be displayed during video
  *      srt: Object mapping languages to SRT file locations
+ *      streamUrl: Base URL for RTMP streaming
  *      survey50: Survey ID if using survey50 integration
  *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
  *      user: User object for analytics tracking
- *      video: URL of the video to play
+ *      video: String of single video URL, or object containing multiple video URLs
+ *          (if using RTMP streaming, this must be relative to streamUrl and videoUrl)
+ *      videoUrl: Only used if using RTMP streaming; base URL for video file
  *
  */
 CS50.Video = function(options) {
@@ -30,8 +32,15 @@ CS50.Video = function(options) {
     // make sure default options are defined
     if (!this.options.playerContainer)
         throw 'Error: You must define a container for the player!';
-    if (!this.options.video || !this.options.video.length)
+    if (!this.options.video)
         throw 'Error: You must define a video to play!';
+
+    // if video is an object, make sure default key is given
+    if (typeof(this.options.video) == 'object' && !this.options.defaultVideo)
+        throw 'Error: You must define a default video to play!';
+
+    // determine initial video to play
+    var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : this.options.video;
 
     // specify default values for optional parameters
     this.options = $.extend({
@@ -39,26 +48,40 @@ CS50.Video = function(options) {
         autostart: true,
         checkUrl: false,
         defaultLanguage: 'en',
+        defaultVideo: '',
         mixpanelKey: false,
         playbackRates: [0.75, 1, 1.25, 1.5],
         playerOptions: {},
         questions: [],
         srt: {},
         survey50: false,
+        streamUrl: false,
         swf: 'player.swf',
         title: '',
-        user: { id: 0, name: '' }
+        user: { id: 0, name: '' },
+        videoUrl: false
     }, this.options);
+
+    // if stream url given, add to player options
+    if (this.options.streamUrl) {
+        this.options.playerOptions.provider = 'rtmp',
+        this.options.playerOptions.streamer = this.options.streamUrl
+    }
+
+    // if base url given, prefix video
+    var html5Video = video;
+    if (this.options.videoUrl)
+        html5Video = this.options.videoUrl + video;
 
     // default options to video player
     this.options.playerOptions = $.extend({
         controlbar: 'bottom',
-        file: this.options.video,
+        file: video,
         provider: 'http',
         modes: [{ 
             type: 'html5' ,
             config: {
-                file: this.options.video,
+                file: html5Video,
                 provider: 'video'
             }
         }, { 
@@ -79,6 +102,18 @@ CS50.Video = function(options) {
     var templateHtml = {
         playbackControls: ' \
             <div class="video50-playback-controls"> \
+                <% if (typeof(videos) == "object") { %> \
+                    <div class="btn-group btn-video-select"> \
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> \
+                            <%= defaultVideo %> <span class="caret"></span> \
+                        </a> \
+                        <ul class="dropdown-menu"> \
+                            <% for (var i in videos) { %> \
+                                <li><a href="#" data-video="<%= videos[i] %>"><%= i %></a></li> \
+                            <% } %> \
+                        </ul> \
+                    </div> \
+                <% } %> \
                 <ul class="nav nav-pills"> \
                     <% for (var i in rates) { %> \
                         <li data-rate="<%= rates[i] %>" class="btn-playback-rate"> \
@@ -216,8 +251,6 @@ CS50.Video = function(options) {
         });
 
         this.createPlayer();
-        this.createNotifications();
-        this.loadSrt(this.options.defaultLanguage);
     }
 };
 
@@ -234,12 +267,8 @@ CS50.Video.QuestionState = {
  *
  */
 CS50.Video.prototype.checkQuestionAvailable = function(time) {
-    // make sure notifications container is given
-    if (!this.options.notificationsContainer)
-        return;
-
     var player = this.player;
-    var $container = $(this.options.notificationsContainer).find('tbody');
+    var $container = $(this.notificationsContainer).find('tbody');
 
     // check if any of the given questions should be displayed at this timecode
     var me = this;
@@ -252,7 +281,7 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
             // don't take both actions on the same question
             if (me.currentQuestion != e.question.id) {
                 // automatically go to the new question if user checked that box
-                if ($(me.options.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
+                if ($(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
                     me.showQuestion(e.question.id)
 
                 // put question at the top of the list of available questions
@@ -262,7 +291,6 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
                     placement: 'right'
                 });
             }
-
         }
 
         // keep track of questions that haven't been seen yet
@@ -281,6 +309,7 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
 CS50.Video.prototype.createPlayer = function() {
     // create html for video player
     var $container = $(this.options.playerContainer);
+    $container.empty();
     $container.html(this.templates.player({
         defaultLanguage: this.options.defaultLanguage,
         srt: this.options.srt,
@@ -303,7 +332,7 @@ CS50.Video.prototype.createPlayer = function() {
     this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer().resize(width, height - NAVBAR_HEIGHT);    
+        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);    
         $container.find('.flip-question-container').css({ minHeight: height });
     });
 
@@ -311,7 +340,7 @@ CS50.Video.prototype.createPlayer = function() {
     $(window).on('resize', function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer().resize(width, height - NAVBAR_HEIGHT);
+        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);
         $container.find('.flip-question-container').css({ minHeight: height });
     }); 
 
@@ -356,7 +385,6 @@ CS50.Video.prototype.createPlayer = function() {
 
             // update highlight on the transcript
             me.updateTranscriptHighlight(e);
-
             this.lastUpdate = (new Date).getTime();
         }
     });
@@ -368,38 +396,57 @@ CS50.Video.prototype.createPlayer = function() {
 
         // determine if browser is capable of variable playback speeds
         var canAdjustPlayback = (me.player.renderingMode != 'flash');
+        if (!canAdjustPlayback)
+            me.options.playbackRates = [];
 
-        // if playback rates are given, then display controls
-        if (me.options.playbackRates.length && canAdjustPlayback) {
-            // use explicit container if given, else simply put controls below video
-            if (me.options.playbackContainer)
-                $(me.options.playbackContainer).html(me.templates.playbackControls({ 
-                    rates: me.options.playbackRates 
-                }));
-            else {
-                me.options.playbackContainer = $(me.templates.playbackControls({ 
-                    rates: me.options.playbackRates 
-                }));
-                $container.after(me.options.playbackContainer);
-            }
+        // display playback container
+        var $playbackContainer = $(me.templates.playbackControls({ 
+            defaultVideo: me.options.defaultVideo,
+            rates: me.options.playbackRates,
+            videos: me.options.video
+        }));
+        $container.find('.video50-playback-controls').remove();
+        $container.find('.video50-player').after($playbackContainer);
 
-            // 1 is the default playback rate
-            var $playbackContainer = $(me.options.playbackContainer);
-            $playbackContainer.find('[data-rate="1"]').addClass('active');
+        // 1 is the default playback rate
+        $playbackContainer.find('[data-rate="1"]').addClass('active');
 
-            // when playback button is changed, alter rate of video
-            $playbackContainer.on('click', '.btn-playback-rate', function(e) {
-                // highlight the current control and remove highlight from others
-                $(this).siblings().removeClass('active');
-                $(this).addClass('active');
+        // when playback button is changed, alter rate of video
+        $playbackContainer.on('click', '.btn-playback-rate', function(e) {
+            // highlight the current control and remove highlight from others
+            $(this).siblings().removeClass('active');
+            $(this).addClass('active');
 
-                // adjust video rate
-                $container.find('video')[0].playbackRate = parseFloat($(this).attr('data-rate'));
+            // adjust video rate
+            $container.find('video')[0].playbackRate = parseFloat($(this).attr('data-rate'));
 
-                e.preventDefault();
-                return false;
-            });
-        }
+            e.preventDefault();
+            return false;
+        });
+
+        // different video selected
+        $playbackContainer.on('click', '.btn-video-select li a', function(e) {
+            // remember where we were
+            var position = me.player.getPosition();
+
+            // if base url given, prefix video
+            var video = $(this).attr('data-video');
+            var html5Video = video;
+            if (me.options.videoUrl)
+                html5Video = me.options.videoUrl + html5Video;
+
+            // update player options
+            me.options.defaultVideo = $(this).text();
+            me.options.playerOptions.file = video;
+            me.options.playerOptions.modes[0].config.file = html5Video;
+
+            // refresh video player
+            $(me.options.playerContainer).empty();
+            me.createPlayer();
+            me.player.seek(position);
+            
+            return false;
+        });
     });
 
     // when back button is pressed, return to video
@@ -408,7 +455,7 @@ CS50.Video.prototype.createPlayer = function() {
         $(this).fadeOut('medium');
 
         // start video and flip back
-        me.player.play();
+        me.player.play(true);
         if (me.supportsFlip)
             $container.find('.flip-container').removeClass('flipped');
         else
@@ -416,18 +463,21 @@ CS50.Video.prototype.createPlayer = function() {
 
         // remove input
         $('.video50-txt-answer').remove();
+        $container.find('.modal-container').fadeIn();
+        me.toggleModal($(me.notificationsContainer));
 
         // fade video back in while flip is occurring for smoothness
-        $container.find('.video-container').fadeIn(900, function() {
-            $container.find('.modal-container').fadeIn();
-        });
+        $container.find('.video-container').fadeIn(900);
     });
 
     // when transcript button pressed, toggle transcript
-    $container.on('click', '.btn-transcript', function(e) {
+    $container.off('click', '.btn-transcript').on('click', '.btn-transcript', function(e) {
         var $transcript = $container.find('.transcript-container');
         me.toggleModal($transcript);
     });
+
+    this.loadSrt(this.options.defaultLanguage);
+    this.createNotifications();
 };
 
 /**
@@ -438,26 +488,19 @@ CS50.Video.prototype.createNotifications = function() {
     var me = this;
     var $player = $(this.options.playerContainer);
     
-    // use default notification center if one does not exist
-    if (!this.options.notificationsContainer) {
-        var $modal = $player.find('.video50-player .modal-container');
-        me.options.notificationsContainer = $('<div class="video50-player-questions panel">').hide()[0];
-       
-        // toggle modal when button clicked
-        var $container = $(me.options.notificationsContainer);
-        $modal.append($container);
-        $player.on('click', '.btn-questions', function() {
-            me.toggleModal($container);
-        });
-    } 
-    
-    // if it does exist, hide question modal trigger
-    else
-        $player.find('.btn-questions').hide(); 
-
+    // create notifications container
+    var $modal = $player.find('.video50-player .modal-container');
+    this.notificationsContainer = $('<div class="video50-player-questions panel">').hide()[0];
+   
     // build notifications container
-    var $container = $(this.options.notificationsContainer);
+    var $container = $(this.notificationsContainer);
     $container.html(this.templates.notifications());
+    $modal.append($container);
+
+    // toggle modal when button clicked
+    $player.on('click', '.btn-questions', function() {
+        me.toggleModal($container);
+    });
 
     // selecting a question should view displays that question
     var me = this;
@@ -570,8 +613,10 @@ CS50.Video.prototype.loadSrt = function(language) {
                     // determine timecode associated with line
                     var time = $(this).attr('data-time');
 
-                    if (time)   
+                    if (time) {
                         player.seek(Math.floor(time));
+                        player.play(true);
+                    }
                 });
 
                 // searching over a transcript
@@ -585,15 +630,6 @@ CS50.Video.prototype.loadSrt = function(language) {
                         $(me.options.playerContainer).find("[data-time]:Contains('" + $(this).val() + "')")
                             .show().css({ "display": "block", "margin-bottom": "10px" });
                     }
-                });
-
-                // keep track of scroll state so we don't auto-seek the transcript when the user scrolls
-                me.disableTranscriptAutoSeek = false;
-                $(me.options.playerContainer).find('.transcript-container').on('scrollstart', function() {
-                    me.disableTranscriptAutoSeek = true;
-                });
-                $(me.options.playerContainer).find('.transcript-container').on('scrollstop', function() {
-                    me.disableTranscriptAutoSeek = false;
                 });
             }
         });
@@ -655,8 +691,6 @@ CS50.Video.prototype.loadSurvey50 = function() {
 
             // load video player
             me.createPlayer();
-            me.createNotifications();
-            me.loadSrt(me.options.defaultLanguage);
         }
     });
 };
@@ -685,7 +719,7 @@ CS50.Video.prototype.renderCallback = function(id, correct, data) {
         });
 
     // update notifications container
-    var $cell = $(this.options.notificationsContainer).find('[data-question-id=' + id + ']').find('.question-state');
+    var $cell = $(this.notificationsContainer).find('[data-question-id=' + id + ']').find('.question-state');
     if (correct)
         $cell.html('<i class="icon-ok"></i>');
     else
@@ -762,12 +796,5 @@ CS50.Video.prototype.updateTranscriptHighlight = function(time) {
 
         // add highlight to active element
         $active.addClass('highlight');
-
-        // put the current element in the middle of the transcript if user is not scrolling
-        if (!this.disableTranscriptAutoSeek) {
-            var top = $active.position().top - parseInt($container.height() / 2);
-            if (top > 0)
-                $container.animate({ scrollTop: top });
-        }
     }
 };

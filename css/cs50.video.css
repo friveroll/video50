@@ -21,7 +21,18 @@
 }
 
 .video50-playback-controls .nav.nav-pills {
+    display: inline-block;
     margin-bottom: 0px;
+}
+
+.video50-playback-controls .btn-video-select {
+    display: inline-block;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.video50-playback-controls .btn-video-select li {
+    display: block;
 }
 
 .video50-player .panel, .video50-player.panel {

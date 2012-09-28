@@ -12,7 +12,7 @@ CS50.Video.Render = CS50.Video.Render || {};
 CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
     // if no check url defined, then use survey50
     if (!video.options.checkUrl)
-        video.options.checkUrl = 'http://apps.cs50.com/survey/questions/check';
+        video.options.checkUrl = video.options.survey50Url + '/survey/questions/check';
 
     // send answer to server
     $.ajax({

@@ -45,7 +45,6 @@ CS50.Video = function(options) {
 
     // specify default values for optional parameters
     this.options = $.extend({
-        authUrl: 'http://apps.cs50.com/login/1?return=' + window.location.href,
         aspectRatio: 1.33,
         autostart: true,
         checkUrl: false,

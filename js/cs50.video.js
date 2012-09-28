@@ -18,6 +18,7 @@ var CS50 = CS50 || {};
  *      srt: Object mapping languages to SRT file locations
  *      streamUrl: Base URL for RTMP streaming
  *      survey50: Survey ID if using survey50 integration
+ *      survey50Url: CNAME to use if using survey50 integration
  *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
  *      user: User object for analytics tracking
@@ -44,6 +45,7 @@ CS50.Video = function(options) {
 
     // specify default values for optional parameters
     this.options = $.extend({
+        authUrl: 'http://apps.cs50.com/login/1?return=' + window.location.href,
         aspectRatio: 1.33,
         autostart: true,
         checkUrl: false,
@@ -662,48 +664,60 @@ CS50.Video.prototype.loadSurvey50 = function() {
         3: CS50.Video.Render.TrueFalseRemote
     };
 
-    // load questions from survey50
     var me = this;
-    $.ajax('http://apps.cs50.com/survey/surveys/get/' + this.options.survey50, {
+    $.ajax(this.options.survey50Url + '/users/authenticated', {
         data: {
             jsonp: true
         },
         dataType: 'jsonp',
         success: function(response) {
-            me.options.questions = [];
-            _.each(response.Questions, function(e) {
-                // parse question data/metadata
-                var data = {};
-                var metadata = {};
-                if (e.question_data)
-                    data = JSON.parse(e.question_data);
-                if (e.metadata)
-                    metadata = JSON.parse(e.metadata);
+            // user does not have an authenticated session, so redirect
+            if (!response.authenticated)
+                window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
 
-                // timecode must be defined for video50 questions
-                if (metadata.timecode) {
-                    // add basic question data
-                    var question = {
-                        timecode: metadata.timecode,
-                        question: {
-                            id: e.id,
-                            question: e.question,
-                            render: renderers[e.type],
-                            tags: metadata.tags || []
+            // load questions from survey50
+            $.ajax(me.options.survey50Url + '/survey/surveys/get/' + me.options.survey50, {
+                data: {
+                    jsonp: true
+                },
+                dataType: 'jsonp',
+                success: function(response) {
+                    me.options.questions = [];
+                    _.each(response.Questions, function(e) {
+                        // parse question data/metadata
+                        var data = {};
+                        var metadata = {};
+                        if (e.question_data)
+                            data = JSON.parse(e.question_data);
+                        if (e.metadata)
+                            metadata = JSON.parse(e.metadata);
+
+                        // timecode must be defined for video50 questions
+                        if (metadata.timecode) {
+                            // add basic question data
+                            var question = {
+                                timecode: metadata.timecode,
+                                question: {
+                                    id: e.id,
+                                    question: e.question,
+                                    render: renderers[e.type],
+                                    tags: metadata.tags || []
+                                }
+                            };
+
+                            // add each key from question data
+                            for (var key in data)
+                                question.question[key] = data[key];
+
+                            question.state = CS50.Video.QuestionState.UNSEEN;
+                            me.options.questions.push(question);
                         }
-                    };
+                    });
 
-                    // add each key from question data
-                    for (var key in data)
-                        question.question[key] = data[key];
-
-                    question.state = CS50.Video.QuestionState.UNSEEN;
-                    me.options.questions.push(question);
+                    // load video player
+                    me.createPlayer();
                 }
             });
-
-            // load video player
-            me.createPlayer();
         }
     });
 };

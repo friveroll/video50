@@ -308,7 +308,7 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
  * Create a new instance of the video player at the specified container
  *
  */
-CS50.Video.prototype.createPlayer = function() {
+CS50.Video.prototype.createPlayer = function(seekStart) {
     // create html for video player
     var $container = $(this.options.playerContainer);
     $container.empty();
@@ -391,10 +391,20 @@ CS50.Video.prototype.createPlayer = function() {
         }
     });
 
+    var initialized = false;
+    this.player.onPlay(function() {
+        if (!initialized && seekStart) {
+            setTimeout(function() {
+                me.player.seek(seekStart);
+                initialized = true;
+            }, 300);
+        }
+    });
+
     this.player.onReady(function() {
         // start video immediately if autostart is enabled
         if (me.options.autostart)
-            me.player.play();
+            me.player.play(true);
 
         // determine if browser is capable of variable playback speeds
         var canAdjustPlayback = (me.player.renderingMode != 'flash');
@@ -444,9 +454,8 @@ CS50.Video.prototype.createPlayer = function() {
 
             // refresh video player
             $(me.options.playerContainer).empty();
-            me.createPlayer();
-            me.player.seek(position);
-            
+            me.createPlayer(position);
+
             return false;
         });
 

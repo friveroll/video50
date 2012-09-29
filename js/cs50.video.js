@@ -10,10 +10,11 @@ var CS50 = CS50 || {};
  *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
  *      defaultVideo: If using multiple video URLs, the video to play by default
+ *      download: String of single download URL, or object containing multiple download URLs
+ *      mixpanelKey: API key for Mixpanel analytics
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      playerOptions: Additional options to pass to the video player
- *      mixpanelKey: API key for Mixpanel analytics
  *      questions: List of questions to be displayed during video
  *      srt: Object mapping languages to SRT file locations
  *      streamUrl: Base URL for RTMP streaming
@@ -49,14 +50,16 @@ CS50.Video = function(options) {
         autostart: true,
         checkUrl: false,
         defaultLanguage: 'en',
-        defaultVideo: '',
+        defaultVideo: false,
+        download: false,
         mixpanelKey: false,
         playbackRates: [0.75, 1, 1.25, 1.5],
         playerOptions: {},
         questions: [],
         srt: {},
-        survey50: false,
         streamUrl: false,
+        survey50: false,
+        survey50Url: 'http://apps.cs50.com',
         swf: 'player.swf',
         title: '',
         user: { id: 0, name: '' },
@@ -115,7 +118,20 @@ CS50.Video = function(options) {
                         </ul> \
                     </div> \
                 <% } %> \
-                <a class="btn btn-download" href="#" target="_blank">Download</a> \
+                <% if (typeof(downloads) == "object") { %> \
+                    <div class="btn-group btn-download"> \
+                        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> \
+                            Download <span class="caret"></span> \
+                        </a> \
+                        <ul class="dropdown-menu"> \
+                            <% for (var i in downloads) { %> \
+                                <li><a href="<%= downloads[i] %>" target="_blank"><%= i %></a></li> \
+                            <% } %> \
+                        </ul> \
+                    </div> \
+                <% } else { %> \
+                    <a href="<%= downloads %>" target="_blank" class="btn btn-download">Download</a> \
+                <% } %> \
                 <ul class="nav nav-pills"> \
                     <% for (var i in rates) { %> \
                         <li data-rate="<%= rates[i] %>" class="btn-playback-rate"> \
@@ -201,7 +217,7 @@ CS50.Video = function(options) {
     };
 
     jQuery.expr[':'].Contains = function(a, i, m) {
-          return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+        return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
     };
 
     // compile templates
@@ -236,9 +252,6 @@ CS50.Video = function(options) {
         // identify user
         this.analytics50.identify(this.options.user.id);
         this.analytics50.name_tag(this.options.user.name);
-
-        // log video view
-        this.analytics50.track('video50/load', { video: this.options.video });
     }
 
     // if survey50 ID given, then load questions remotely
@@ -253,6 +266,13 @@ CS50.Video = function(options) {
         });
 
         this.createPlayer();
+
+        // log video view
+        if (this.analytics50) {
+            var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : 
+                this.options.video;
+            this.analytics50.track('video50/load', { video: video });
+        }
     }
 };
 
@@ -411,9 +431,24 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         if (!canAdjustPlayback)
             me.options.playbackRates = [];
 
+        // if base url given, prefix download urls
+        if (me.options.videoUrl && me.options.download) {
+            // if list of urls given, prefix each
+            if (typeof(me.options.download) == 'object')
+                for (var i in me.options.download)
+                    me.options.download[i] = me.options.videoUrl + me.options.download[i];
+
+            // prefix single url
+            else
+                me.options.download = me.options.videoUrl + me.options.download;
+        }
+
+        console.log(me.options.download);
+
         // display playback container
         var $playbackContainer = $(me.templates.playbackControls({ 
             defaultVideo: me.options.defaultVideo,
+            downloads: me.options.download,
             rates: me.options.playbackRates,
             videos: me.options.video
         }));
@@ -457,18 +492,6 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             me.createPlayer(position);
 
             return false;
-        });
-
-        // download pressed
-        $playbackContainer.on('click', '.btn-download', function(e) {
-            // if base url given, prefix video
-            var video = me.options.playerOptions.file;
-            var html5Video = video;
-            if (me.options.videoUrl)
-                html5Video = me.options.videoUrl + html5Video;
-
-            // point download button at video
-            $(this).attr('href', html5Video);
         });
     });
 
@@ -718,8 +741,12 @@ CS50.Video.prototype.loadSurvey50 = function() {
             // save authenticated user
             me.options.user = response.user;
             if (me.analytics50) {
+                var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : 
+                    this.options.video;
+
                 me.analytics50.identify(me.options.user.id);
                 me.analytics50.name_tag(me.options.user.name);
+                me.analytics50.track('video50/load', { video: video });
             }
 
             // load questions from survey50

@@ -25,13 +25,13 @@
     margin-bottom: 0px;
 }
 
-.video50-playback-controls .btn-video-select {
+.video50-playback-controls .btn-video-select, .video50-playback-controls .btn-download {
     display: inline-block;
     margin-left: 5px;
     vertical-align: middle;
 }
 
-.video50-playback-controls .btn-video-select li {
+.video50-playback-controls .btn-video-select li, .video50-playback-controls .btn-download li {
     display: block;
 }
 

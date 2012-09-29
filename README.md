@@ -11,18 +11,22 @@ To create a new CS50 Video player, instantiate a new `CS50.Video` object:
         aspectRatio: 720 / 480,
         autostart: true,
         defaultVideo: '720p',
+        download: {
+            '360p': '2012/fall/lectures/0/week0w-360p.mp4',
+            '720p': '2012/fall/lectures/0/week0w-720p.mp4'
+        },
         playerContainer: '#video',
         questions: questions,
         srt: {
             en: 'week0w-en.srt',
             pt: 'week0w-pt.srt'
         },
+        streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
         title: 'Lecture 0: Wednesday',
         video: {
-            '360p': '2011/fall/lectures/0/week0f.mp4',
-            '720p': '2011/fall/lectures/0/week0w.mp4'
+            '360p': '2012/fall/lectures/0/week0w-360p.mp4',
+            '720p': '2012/fall/lectures/0/week0w-720p.mp4'
         },
-        streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
         videoUrl: 'http://cdn.cs50.net/'
     });
 
@@ -33,6 +37,7 @@ The options object passed to the `CS50.Video` constructor can define the followi
 * `checkUrl`: URL to be used for checking the answers to questions remotely
 * `defaultLanguage`: Default language for transcript and subtitles
 * `defaultVideo`: If using multiple video URLs, the video to play by default
+* `download`: String of single download URL, or object containing multiple download URLs
 * `playbackRates`: List of supported playback rates
 * `playerContainer`: Container to render player within
 * `playerOptions`: Additional options to pass to the video player
@@ -40,7 +45,8 @@ The options object passed to the `CS50.Video` constructor can define the followi
 * `questions`: List of questions to be displayed during video
 * `srt`: Object mapping languages to SRT file locations
 * `streamUrl`: Base URL for RTMP streaming
-* `survey50`: Survey ID if using survey50 integration for server-side question checking
+* `survey50`: Survey ID if using survey50 integration
+* `survey50Url`: CNAME to use if using survey50 integration
 * `swf`: SWF file to fall back on for unsupported browsers
 * `title`: Title of Video
 * `user`: User object for analytics tracking

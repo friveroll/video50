@@ -237,6 +237,10 @@
     opacity: .8;
 }
 
+.video50-player .transcript-container .transcript-search-wrapper .icon-remove {
+    cursor: pointer;
+}
+
 .video50-player .transcript-container .transcript-search-wrapper .transcript-search {
     border: 1px solid #DDD;
     outline: 0px;

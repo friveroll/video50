@@ -132,7 +132,7 @@ CS50.Video = function(options) {
                 <% } else { %> \
                     <a href="<%= downloads %>" target="_blank" class="btn btn-download">Download</a> \
                 <% } %> \
-                <ul class="nav nav-pills"> \
+                <ul class="nav nav-pills speed-pills"> \
                     <% for (var i in rates) { %> \
                         <li data-rate="<%= rates[i] %>" class="btn-playback-rate"> \
                             <a href="#"><%= rates[i] %>x</a> \
@@ -442,8 +442,6 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             else
                 me.options.download = me.options.videoUrl + me.options.download;
         }
-
-        console.log(me.options.download);
 
         // display playback container
         var $playbackContainer = $(me.templates.playbackControls({ 

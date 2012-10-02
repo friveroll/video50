@@ -508,7 +508,12 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     // when transcript button pressed, toggle transcript
     $container.off('click', '.btn-transcript').on('click', '.btn-transcript', function(e) {
         var $transcript = $container.find('.transcript-container');
-        me.toggleModal($transcript);
+        me.toggleModal($transcript, function() {
+            // scroll modal to the correct point
+            var top = $container.find('.transcript-text-wrapper .highlight').position().top;
+            top = top - $container.find('.transcript-container').height()/2;
+            $container.find('.transcript-text-wrapper').scrollTop(top);
+        });
     });
 
     this.loadSrt(this.options.defaultLanguage);
@@ -578,15 +583,19 @@ CS50.Video.prototype.createNotifications = function() {
  * @param modal jquery object for the modal to show
  *
  */
-CS50.Video.prototype.toggleModal = function(modal) {
+CS50.Video.prototype.toggleModal = function(modal, cb) {
+    if (cb == undefined) {
+        cb = function() {};
+    }
+
     $container = $(this.options.playerContainer).find(".modal-container");
     if (modal.is(':hidden')) {
         $container.children().not(modal).slideUp('fast', function() {
-            modal.slideDown('fast');
+            modal.slideDown('fast', cb);
         });
     }
     else
-        modal.slideUp('fast');
+        modal.slideUp('fast', cb);
 
     return modal;
 }

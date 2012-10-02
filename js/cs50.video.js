@@ -334,16 +334,16 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);    
-        $container.find('.flip-question-container').css({ minHeight: height });
+        jwplayer().resize(width, height - NAVBAR_HEIGHT);    
+        $container.find('.flip-question-container').css({ minHeight: height - NAVBAR_HEIGHT });
     });
 
     // when resized, 
     $(window).on('resize', function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);
-        $container.find('.flip-question-container').css({ minHeight: height });
+        jwplayer().resize(width, height - NAVBAR_HEIGHT);
+        $container.find('.flip-question-container').css({ minHeight: height - NAVBAR_HEIGHT });
     }); 
 
     // player fullscreen
@@ -479,18 +479,30 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
         // start video and flip back
         me.player.play(true);
-        if (me.supportsFlip)
+        if (me.supportsFlip) {
             $container.find('.flip-container').removeClass('flipped');
-        else
-            $container.find('.flip-question-container').fadeOut('fast');
+            
+            // remove input
+            $('.video50-txt-answer').remove();
 
-        // remove input
-        $('.video50-txt-answer').remove();
-        $container.find('.modal-container').fadeIn();
-        me.toggleModal($(me.notificationsContainer));
+            // fade video back in while flip is occurring for smoothness
+            $container.find('.video-container').fadeIn(900, function() {
+                $container.find('.modal-container').fadeIn();
+                me.toggleModal($(me.notificationsContainer));
+            });
+        }
+        else {
+            $container.find('.flip-question-container').fadeOut('fast', function() {
+                // remove input
+                $('.video50-txt-answer').remove();
 
-        // fade video back in while flip is occurring for smoothness
-        $container.find('.video-container').fadeIn(900);
+                // fade video back in while flip is occurring for smoothness
+                $container.find('.video-container').fadeIn(900, function() {
+                    $container.find('.modal-container').fadeIn();
+                    me.toggleModal($(me.notificationsContainer));
+                });
+            });
+        }
     });
 
     // when transcript button pressed, toggle transcript
@@ -808,11 +820,15 @@ CS50.Video.prototype.showQuestion = function(id) {
         // flip player to show question
         var me = this;
         $(this.options.playerContainer).find('.modal-container').fadeOut(100, function() {
-            $(me.options.playerContainer).find('.video-container').fadeOut(900);
-            if (me.supportsFlip)
+            if (me.supportsFlip) {
+                $(me.options.playerContainer).find('.video-container').fadeOut(900);
                 $(me.options.playerContainer).find('.flip-container').addClass('flipped');
-            else
-                $(me.options.playerContainer).find('.flip-question-container').fadeIn('fast');
+            }
+            else {
+                $(me.options.playerContainer).find('.video-container').fadeOut('fast', function() {
+                    $(me.options.playerContainer).find('.flip-question-container').fadeIn('fast');
+                });
+            }
         });
 
         // display back button

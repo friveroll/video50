@@ -531,9 +531,11 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         var $transcript = $container.find('.transcript-container');
         me.toggleModal($transcript, function() {
             // scroll modal to the correct point
-            var top = $container.find('.transcript-text-wrapper .highlight').position().top || 0;
-            top = top - $container.find('.transcript-container').height()/2;
-            $container.find('.transcript-text-wrapper').scrollTop(top);
+            if ($container.find('.transcript-text-wrapper .highlight').length) {
+                var top = $container.find('.transcript-text-wrapper .highlight').position().top || 0;
+                top -= $container.find('.transcript-container').height() / 2;
+                $container.find('.transcript-text-wrapper').scrollTop(top);
+            }
         });
     });
 

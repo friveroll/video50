@@ -77,6 +77,18 @@ CS50.Video = function(options) {
     if (this.options.videoUrl)
         html5Video = this.options.videoUrl + video;
 
+    // if base url given, prefix download urls
+    if (this.options.videoUrl && this.options.download) {
+        // if list of urls given, prefix each
+        if (typeof(this.options.download) == 'object')
+            for (var i in this.options.download)
+                this.options.download[i] = this.options.videoUrl + this.options.download[i];
+
+        // prefix single url
+        else
+            this.options.download = this.options.videoUrl + this.options.download;
+    }
+
     // default options to video player
     this.options.playerOptions = $.extend({
         controlbar: 'bottom',
@@ -430,18 +442,6 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         var canAdjustPlayback = (me.player.renderingMode != 'flash');
         if (!canAdjustPlayback)
             me.options.playbackRates = [];
-
-        // if base url given, prefix download urls
-        if (me.options.videoUrl && me.options.download) {
-            // if list of urls given, prefix each
-            if (typeof(me.options.download) == 'object')
-                for (var i in me.options.download)
-                    me.options.download[i] = me.options.videoUrl + me.options.download[i];
-
-            // prefix single url
-            else
-                me.options.download = me.options.videoUrl + me.options.download;
-        }
 
         // display playback container
         var $playbackContainer = $(me.templates.playbackControls({ 

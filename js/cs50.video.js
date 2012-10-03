@@ -510,23 +510,22 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             
             // remove input
             $('.video50-txt-answer').remove();
+            $container.find('.modal-container').fadeIn();
+            me.toggleModal($(me.notificationsContainer));
 
             // fade video back in while flip is occurring for smoothness
-            $container.find('.video-container').fadeIn(900, function() {
-                $container.find('.modal-container').fadeIn();
-                me.toggleModal($(me.notificationsContainer));
-            });
+            $container.find('.video-container').fadeIn(900);
         }
+
         else {
             $container.find('.flip-question-container').fadeOut('fast', function() {
                 // remove input
                 $('.video50-txt-answer').remove();
+                $container.find('.modal-container').fadeIn();
+                me.toggleModal($(me.notificationsContainer));
 
                 // fade video back in while flip is occurring for smoothness
-                $container.find('.video-container').fadeIn(900, function() {
-                    $container.find('.modal-container').fadeIn();
-                    me.toggleModal($(me.notificationsContainer));
-                });
+                $container.find('.video-container').fadeIn(900);
             });
         }
     });

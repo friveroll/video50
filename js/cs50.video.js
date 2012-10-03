@@ -51,7 +51,7 @@ CS50.Video = function(options) {
         autostart: true,
         baseUrl: '.',
         checkUrl: false,
-        defaultLanguage: 'en',
+        defaultLanguage: 'eng',
         defaultVideo: false,
         download: false,
         mixpanelKey: false,
@@ -70,8 +70,8 @@ CS50.Video = function(options) {
 
     // if stream url given, add to player options
     if (this.options.streamUrl) {
-        this.options.playerOptions.provider = 'rtmp',
-        this.options.playerOptions.streamer = this.options.streamUrl
+        this.options.playerOptions.provider = 'rtmp';
+        this.options.playerOptions.streamer = this.options.streamUrl;
     }
 
     // if base url given, prefix video
@@ -111,7 +111,7 @@ CS50.Video = function(options) {
         plugins: {
             'captions-2': {
                 files: _.values(this.options.srt).join(),
-                labels: _.keys(this.options.srt).join()
+                labels: _.map(_.keys(this.options.srt), function(e) { return CS50.Video.Languages[e] }).join()
             }
         }
     }, this.options.playerOptions);
@@ -169,7 +169,7 @@ CS50.Video = function(options) {
                         <ul class="dropdown-menu transcript-lang"> \
                             <% for (var i in srt) { %> \
                                 <li> \
-                                    <a href="#" data-lang="<%= i %>"><%= i %></a> \
+                                    <a href="#" data-lang="<%= i %>"><%= CS50.Video.Languages[i] %></a> \
                                 </li> \
                             <% } %> \
                         </ul> \

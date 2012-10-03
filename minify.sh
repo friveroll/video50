@@ -12,6 +12,7 @@ cat \
     js/lib/cs50.analytics.js \
     js/cs50.video.js \
     js/cs50.video.render.js \
+    js/cs50.video.languages.js \
     > build/cs50.video.min.js
 java -jar yuicompressor-2.4.7.jar -o build/cs50.video.min.js build/cs50.video.min.js
 

@@ -221,7 +221,12 @@ CS50.Video = function(options) {
                 <td class="question-state" style="width: 1px"></td> \
                 <td> \
                     <a href="#" rel="tooltip" title="<%= question.question.question %>"> \
-                        <%= question.question.tags.join(", ") %> \
+                        <% \
+                            if (question.question.tags && question.question.tags.length) \
+                                print(question.question.tags.join(", ")); \
+                            else \
+                                print(question.question.question); \
+                        %> \
                     </a> \
                 </td> \
             </tr> \

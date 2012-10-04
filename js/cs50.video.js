@@ -43,7 +43,7 @@ CS50.Video = function(options) {
         throw 'Error: You must define a default video to play!';
 
     // determine initial video to play
-    var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : this.options.video;
+    this.currentVideo = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : this.options.video;
 
     // specify default values for optional parameters
     this.options = $.extend({
@@ -75,9 +75,9 @@ CS50.Video = function(options) {
     }
 
     // if base url given, prefix video
-    var html5Video = video;
+    var html5Video = this.currentVideo;
     if (this.options.videoUrl)
-        html5Video = this.options.videoUrl + video;
+        html5Video = this.options.videoUrl + this.currentVideo;
 
     // if base url given, prefix download urls
     if (this.options.videoUrl && this.options.download) {
@@ -94,7 +94,7 @@ CS50.Video = function(options) {
     // default options to video player
     this.options.playerOptions = $.extend({
         controlbar: 'bottom',
-        file: video,
+        file: this.currentVideo,
         provider: 'http',
         modes: [{ 
             type: 'html5' ,
@@ -106,7 +106,7 @@ CS50.Video = function(options) {
             type: 'flash', 
             src: [this.options.baseUrl, 'player.swf'].join('/')
         }],
-        width: "100%",
+        width: '100%',
         skin: [this.options.baseUrl, 'skins/glow/glow.xml'].join('/'),
         plugins: {
             'captions-2': {
@@ -285,13 +285,6 @@ CS50.Video = function(options) {
         });
 
         this.createPlayer();
-
-        // log video view
-        if (this.analytics50) {
-            var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : 
-                this.options.video;
-            this.analytics50.track('video50/load', { video: video });
-        }
     }
 };
 
@@ -356,7 +349,6 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         srt: this.options.srt,
         swf: this.options.swf,
         title: this.options.title,
-        video: this.options.video,
     }));
 
     // apply degraded classes if flip is not supported
@@ -388,7 +380,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     // player fullscreen
     this.player.onFullscreen(function(e) {
         if (me.analytics50)
-            me.analytics50.track('video50/fullscreen', { video: me.options.video });
+            me.analytics50.track('video50/fullscreen', { video: me.currentVideo });
         
         if (e.fullscreen)
             $container.find('.video50-player').addClass('fullscreen');
@@ -399,13 +391,13 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     // player pause
     this.player.onPause(function(e) {
         if (me.analytics50)
-            me.analytics50.track('video50/pause', { video: me.options.video });
+            me.analytics50.track('video50/pause', { video: me.currentVideo });
     });
 
     // player resume
     this.player.onPlay(function(e) {
         if (me.analytics50)
-            me.analytics50.track('video50/play', { video: me.options.video });
+            me.analytics50.track('video50/play', { video: me.currentVideo });
     });
 
     // player seek
@@ -414,7 +406,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             me.analytics50.track('video50/seek', { 
                 from: e.position,
                 to: e.offset,
-                video: me.options.video 
+                video: me.currentVideo 
             });
     });
 
@@ -470,7 +462,15 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             $(this).addClass('active');
 
             // adjust video rate
-            $container.find('video')[0].playbackRate = parseFloat($(this).attr('data-rate'));
+            var rate = parseFloat($(this).attr('data-rate'));
+            $container.find('video')[0].playbackRate = rate;
+
+            // log playback speed change
+            if (me.analytics50)
+                me.analytics50.track('video50/playbackRate', { 
+                    rate: rate,
+                    video: this.currentVideo 
+                });
 
             e.preventDefault();
             return false;
@@ -482,14 +482,14 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             var position = me.player.getPosition();
 
             // if base url given, prefix video
-            var video = $(this).attr('data-video');
-            var html5Video = video;
+            me.currentVideo = $(this).attr('data-video');
+            var html5Video = me.currentVideo;
             if (me.options.videoUrl)
                 html5Video = me.options.videoUrl + html5Video;
 
             // update player options
             me.options.defaultVideo = $(this).text();
-            me.options.playerOptions.file = video;
+            me.options.playerOptions.file = me.currentVideo;
             me.options.playerOptions.modes[0].config.file = html5Video;
 
             // refresh video player
@@ -497,6 +497,16 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             me.createPlayer(position);
 
             return false;
+        });
+
+        // video downoaded
+        $playbackContainer.on('click', '.btn-download li a', function(e) {
+            // log download
+            if (me.analytics50)
+                me.analytics50.track('video50/download', {
+                    href: $(this).attr('href'),
+                    video: me.currentVideo
+                });
         });
 
         // inform that player is ready
@@ -549,6 +559,10 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             }
         });
     });
+
+    // log video view
+    if (this.analytics50)
+        this.analytics50.track('video50/load', { video: this.currentVideo });
 
     this.loadSrt(this.options.defaultLanguage);
     this.createNotifications();
@@ -752,12 +766,8 @@ CS50.Video.prototype.loadSurvey50 = function() {
             // save authenticated user
             me.options.user = response.user;
             if (me.analytics50) {
-                var video = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : 
-                    this.options.video;
-
                 me.analytics50.identify(me.options.user.id);
                 me.analytics50.name_tag(me.options.user.name);
-                me.analytics50.track('video50/load', { video: video });
             }
 
             // load questions from survey50
@@ -827,7 +837,7 @@ CS50.Video.prototype.renderCallback = function(id, correct, data) {
         this.analytics50.track('video50/answerQuestion', {
             correct: correct,
             id: id,
-            video: this.options.video
+            video: this.currentVideo
         });
 
     // update notifications container
@@ -853,7 +863,7 @@ CS50.Video.prototype.showQuestion = function(id) {
         if (this.analytics50)
             this.analytics50.track('video50/viewQuestion', {
                 id: id,
-                video: this.options.video
+                video: this.currentVideo
             });
 
         // keep track of the current question

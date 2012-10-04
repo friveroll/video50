@@ -7,13 +7,13 @@ var CS50 = CS50 || {};
  * @param options Player options:
  *      aspectRatio: Aspect ratio for the video
  *      autostart: True to start video automatically, false otherwise
- *      baseUrl: base URL for video50's directory
+ *      baseUrl: Base URL for video50's directory
  *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
  *      defaultVideo: If using multiple video URLs, the video to play by default
  *      download: String of single download URL, or object containing multiple download URLs
  *      mixpanelKey: API key for Mixpanel analytics
- *      onReady: function to be called when player is ready
+ *      onReady: Function to be called when player is ready
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      playerOptions: Additional options to pass to the video player

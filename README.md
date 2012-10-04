@@ -49,7 +49,6 @@ The options object passed to the `CS50.Video` constructor can define the followi
 * `streamUrl`: Base URL for RTMP streaming
 * `survey50`: Survey ID if using survey50 integration
 * `survey50Url`: CNAME to use if using survey50 integration
-* `swf`: SWF file to fall back on for unsupported browsers
 * `title`: Title of Video
 * `user`: User object for analytics tracking
 * `video`: String of single video URL, or object containing multiple video URLs (if using RTMP streaming, this must be relative to streamUrl and videoUrl)

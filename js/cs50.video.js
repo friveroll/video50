@@ -7,6 +7,7 @@ var CS50 = CS50 || {};
  * @param options Player options:
  *      aspectRatio: Aspect ratio for the video
  *      autostart: True to start video automatically, false otherwise
+ *      baseUrl: base URL for video50's directory
  *      checkUrl: URL to be used for checking the answers to questions remotely
  *      defaultLanguage: Default language for transcript and subtitles
  *      defaultVideo: If using multiple video URLs, the video to play by default
@@ -21,7 +22,6 @@ var CS50 = CS50 || {};
  *      streamUrl: Base URL for RTMP streaming
  *      survey50: Survey ID if using survey50 integration
  *      survey50Url: CNAME to use if using survey50 integration
- *      swf: SWF file to fall back on for unsupported browsers
  *      title: Title of Video
  *      user: User object for analytics tracking
  *      video: String of single video URL, or object containing multiple video URLs
@@ -49,6 +49,7 @@ CS50.Video = function(options) {
     this.options = $.extend({
         aspectRatio: 1.33,
         autostart: true,
+        baseUrl: '.',
         checkUrl: false,
         defaultLanguage: 'en',
         defaultVideo: false,
@@ -62,7 +63,6 @@ CS50.Video = function(options) {
         streamUrl: false,
         survey50: false,
         survey50Url: 'http://apps.cs50.com',
-        swf: 'player.swf',
         title: '',
         user: { id: 0, name: '' },
         videoUrl: false
@@ -104,10 +104,10 @@ CS50.Video = function(options) {
             }
         }, { 
             type: 'flash', 
-            src: this.options.swf 
+            src: [this.options.baseUrl, 'player.swf'].join('/')
         }],
         width: "100%",
-        skin: 'skins/glow/glow.xml',
+        skin: [this.options.baseUrl, 'skins/glow/glow.xml'].join('/'),
         plugins: {
             'captions-2': {
                 files: _.values(this.options.srt).join(),

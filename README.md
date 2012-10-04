@@ -34,10 +34,12 @@ The options object passed to the `CS50.Video` constructor can define the followi
 
 * `aspectRatio`: Aspect ratio for the video
 * `autostart`: True to start video automatically, false otherwise
+* `baseUrl`: Base URL for video50's directory
 * `checkUrl`: URL to be used for checking the answers to questions remotely
 * `defaultLanguage`: Default language for transcript and subtitles
 * `defaultVideo`: If using multiple video URLs, the video to play by default
 * `download`: String of single download URL, or object containing multiple download URLs
+* `onReady`: Function to be called when player is ready
 * `playbackRates`: List of supported playback rates
 * `playerContainer`: Container to render player within
 * `playerOptions`: Additional options to pass to the video player

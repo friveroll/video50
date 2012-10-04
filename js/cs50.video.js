@@ -426,13 +426,26 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     this.player.onPlay(function() {
         if (!initialized && seekStart) {
             setTimeout(function() {
+                // skip to seek start
                 me.player.seek(seekStart);
                 initialized = true;
+
+                // after video has seeked, show again
+                setTimeout(function() {
+                    me.player.setMute(false);
+                    $container.find('.video-container').css('visibility', 'visible');
+                }, 300);
             }, 300);
         }
     });
 
     this.player.onReady(function() {
+        // if seek given, then hide video while seek occurs
+        if (seekStart) {
+            me.player.setMute(true);
+            $container.find('.video-container').css('visibility', 'hidden');
+        }
+
         // start video immediately if autostart is enabled
         if (me.options.autostart)
             me.player.play(true);

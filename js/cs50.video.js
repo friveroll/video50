@@ -12,6 +12,7 @@ var CS50 = CS50 || {};
  *      defaultVideo: If using multiple video URLs, the video to play by default
  *      download: String of single download URL, or object containing multiple download URLs
  *      mixpanelKey: API key for Mixpanel analytics
+ *      onReady: function to be called when player is ready
  *      playbackRates: List of supported playback rates
  *      playerContainer: Container to render player within
  *      playerOptions: Additional options to pass to the video player
@@ -53,6 +54,7 @@ CS50.Video = function(options) {
         defaultVideo: false,
         download: false,
         mixpanelKey: false,
+        onReady: false,
         playbackRates: [0.75, 1, 1.25, 1.5],
         playerOptions: {},
         questions: [],
@@ -496,6 +498,11 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
             return false;
         });
+
+        // inform that player is ready
+        if (typeof(me.options.onReady) === 'function') {
+            me.options.onReady();
+        }
     });
 
     // when back button is pressed, return to video

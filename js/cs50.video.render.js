@@ -173,10 +173,16 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback, re
     // when submit button is pressed, check the answer
     var me = this;
     $container.on('click', '.btn-submit', function(e) {
+        var answer = parseInt($container.find('input[type=radio]:checked').val());
+
+        // represent true and false in the natural way
+        if (data.trueFalse)
+            answer = Number(!answer);
+
         // local question
         if (remote === undefined || remote === false) {
             // the index of the selected answer must match the correct answer
-            var correct = (data.answer == $container.find('input[type=radio]:checked').val());
+            var correct = (data.answer == answer);
             CS50.Video.Render.displayCorrectness(correct, video);
 
             // finish this question
@@ -185,7 +191,7 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback, re
 
         // remote question
         else
-            CS50.Video.Render.checkRemote(data, $container.find('input[type=radio]:checked').val(), video, callback);
+            CS50.Video.Render.checkRemote(data, answer, video, callback);
 
         e.preventDefault();
         return false;
@@ -285,11 +291,12 @@ CS50.Video.Render.NumericRemote = function(video, container, data, callback) {
 CS50.Video.Render.TrueFalse = function(video, container, data, callback, remote) {
     // true/false is really just multiple choice
     CS50.Video.Render.MultipleChoice(video, container, {
-        answer: !data.answer,
+        answer: data.answer,
         choices: ['True', 'False'],
         id: data.id,
         question: data.question,
         tags: data.tags,
+        trueFalse: true,
     }, callback, remote);
 };
 

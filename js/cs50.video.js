@@ -79,18 +79,6 @@ CS50.Video = function(options) {
     if (this.options.videoUrl)
         html5Video = this.options.videoUrl + this.currentVideo;
 
-    // if base url given, prefix download urls
-    if (this.options.videoUrl && this.options.download) {
-        // if list of urls given, prefix each
-        if (typeof(this.options.download) == 'object')
-            for (var i in this.options.download)
-                this.options.download[i] = this.options.videoUrl + this.options.download[i];
-
-        // prefix single url
-        else
-            this.options.download = this.options.videoUrl + this.options.download;
-    }
-
     // default options to video player
     this.options.playerOptions = $.extend({
         controlbar: 'bottom',

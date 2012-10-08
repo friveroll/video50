@@ -12,8 +12,8 @@ To create a new CS50 Video player, instantiate a new `CS50.Video` object:
         autostart: true,
         defaultVideo: '720p',
         download: {
-            '360p': '2012/fall/lectures/0/week0w-360p.mp4',
-            '720p': '2012/fall/lectures/0/week0w-720p.mp4'
+            '360p': 'http://cdn.cs50.net/2012/fall/lectures/0/week0w-360p.mp4',
+            '720p': 'http://cdn.cs50.net/2012/fall/lectures/0/week0w-720p.mp4'
         },
         playerContainer: '#video',
         questions: questions,

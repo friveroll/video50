@@ -324,6 +324,18 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
     })
 };
 
+
+/**
+ * Force a container to redraw itself, needed for fullscreen bugfix. 
+ * http://stackoverflow.com/questions/8927478/jquery-css-rendering-works-in-firefox-not-in-chrome
+ */
+CS50.Video.prototype.forceRedraw = function($container) {
+    $container[0].style.display = 'none';
+    $container[0].offsetHeight; // no need to store this anywhere, the reference is enough
+    $container[0].style.display = 'block';
+    $(window).trigger('resize');
+}
+
 /**
  * Create a new instance of the video player at the specified container
  *
@@ -369,11 +381,17 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     this.player.onFullscreen(function(e) {
         if (me.analytics50)
             me.analytics50.track('video50/fullscreen', { video: me.currentVideo });
-        
-        if (e.fullscreen)
+       
+        // degrade webkit perspective so fixed positioning works
+        if (e.fullscreen) {
             $container.find('.video50-player').addClass('fullscreen');
-        else
+            
+            // redraw container to avoid FF and Chrome bugs
+            me.forceRedraw($container);
+        }
+        else {
             $container.find('.video50-player').removeClass('fullscreen');
+        }
     });
 
     // player pause

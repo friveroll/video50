@@ -44,19 +44,27 @@
                 var player = new CS50.Video({
                     aspectRatio: 720 / 480,
                     autostart: true,
-                    playerContainer: '#video',
-                    playerOptions: {
-                        provider: "rtmp",
-                        streamer: "rtmp://stream.cs50.net/cfx/st/",
-                        file: "2011/fall/lectures/0/week0w.mp4"
+                    defaultVideo: '720p',
+                    download: {
+                        '360p': '2012/fall/lectures/0/week0w-360p.mp4',
+                        '720p': '2012/fall/lectures/0/week0w-720p.mp4',
                     },
+                    playerContainer: '#video',
                     questions: questions,
                     srt: {
-                        en: 'week0w-en.srt',
-                        pt: 'week0w-pt.srt'
+                        eng: 'week0w-en.srt',
+                        por_br: 'week0w-pt.srt'
                     },
                     title: 'Lecture 0: Wednesday',
-                    video: 'http://cdn.cs50.net/2011/fall/lectures/0/week0w.mp4'
+                    video: {
+                        '360p': '2012/fall/lectures/0/week0w-360p.mp4',
+                        '720p': '2012/fall/lectures/0/week0w-720p.mp4',
+                    },
+                    streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
+                    videoUrl: 'http://cdn.cs50.net/',
+                    //mixpanelKey: '49c79a74811ced39cdb8f8433861ec2f',
+                    //survey50: 1,
+                    //survey50Url: 'http://apps.cs50.net'
                 });
             });
         </script>

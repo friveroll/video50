@@ -150,7 +150,7 @@ CS50.Video = function(options) {
                     <button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
                     <div class="player-navbar-title"><%= title %></div> \
                     <div class="btn-group btn-group-transcript"> \
-                        <button class="btn btn-transcript">Transcript</button> \
+                        <button class="btn btn-transcript btn-modal"><i class="icon-search"></i></button> \
                         <button class="btn dropdown-toggle" data-toggle="dropdown"> \
                             <span class="caret"></span> \
                         </button> \
@@ -162,9 +162,9 @@ CS50.Video = function(options) {
                             <% } %> \
                         </ul> \
                     </div> \
-                    <button class="btn btn-questions"> \
+                    <button class="btn btn-questions btn-modal"> \
+                        <i class="icon-question-sign"></i> \
                         <span class="questions-number">0</span> \
-                        Questions \
                     </button> \
                 </div> \
                 <div class="flip-container"> \
@@ -245,7 +245,7 @@ CS50.Video = function(options) {
     })() == -1);
 
     // sort questions by timecode
-    this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); });
+    this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); }); 
 
     // initialize analytics
     this.analytics50 = false;
@@ -307,10 +307,15 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
                     me.showQuestion(e.question.id)
 
                 // put question at the top of the list of available questions
-                $container.prepend(me.templates.notification({
+                var $question = $(me.templates.notification({
                     question: e
-                })).find('[rel=tooltip]').tooltip({
-                    placement: 'right'
+                })).hide();
+
+                $container.prepend($question);
+                $question.fadeIn('fast', function() {
+                    $question.find('[rel=tooltip]').tooltip({
+                        placement: 'right'
+                    });
                 });
             }
         }
@@ -350,6 +355,14 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         swf: this.options.swf,
         title: this.options.title,
     }));
+
+    // show transcript button if there is a transcript
+    if (_.keys(this.options.srt).length)
+        $container.find('.btn-group-transcript').show();
+
+    // show questions button if there are questions
+    if (this.options.questions.length != 0)
+        $container.find('.btn-questions').show();
 
     // apply degraded classes if flip is not supported
     if (!this.supportsFlip)
@@ -393,12 +406,13 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             else if (player.webkitRequestFullScreen)
                 player.webkitRequestFullScreen();
             
-            // redraw container to avoid FF and Chrome bug    // Get the element that we want to take into fullscreen mode
-            me.forceRedraw($container);
         }
         else {
             $container.find('.video50-player').removeClass('fullscreen');
         }
+        
+        // redraw container to avoid FF and Chrome bug    
+        me.forceRedraw($container);
     });
 
     // player pause
@@ -541,6 +555,18 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         }
     });
 
+    $container.on('click', '.btn-modal', function(e) {
+        // if this button is active already, undepress it
+        if ($(this).hasClass('active'))
+            $container.find('.btn-modal').removeClass('active');
+        else
+        {
+            // otherwise, undepress all buttons, depress this one
+            $container.find('.btn-modal').removeClass('active');
+            $(this).addClass('active');
+        }
+    });
+
     // when back button is pressed, return to video
     $container.on('click', '.btn-back', function(e) {
         // hide button
@@ -557,7 +583,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             me.toggleModal($(me.notificationsContainer));
 
             // fade video back in while flip is occurring for smoothness
-            $container.find('.video-container').fadeIn(900);
+            $container.find('.video-container').fadeIn(600);
         }
 
         else {
@@ -568,7 +594,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
                 me.toggleModal($(me.notificationsContainer));
 
                 // fade video back in while flip is occurring for smoothness
-                $container.find('.video-container').fadeIn(900);
+                $container.find('.video-container').fadeIn(600);
             });
         }
     });
@@ -915,7 +941,7 @@ CS50.Video.prototype.showQuestion = function(id) {
         var me = this;
         $(this.options.playerContainer).find('.modal-container').fadeOut(100, function() {
             if (me.supportsFlip) {
-                $(me.options.playerContainer).find('.video-container').fadeOut(900);
+                $(me.options.playerContainer).find('.video-container').fadeOut(600);
                 $(me.options.playerContainer).find('.flip-container').addClass('flipped');
             }
             else {

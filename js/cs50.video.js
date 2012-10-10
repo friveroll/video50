@@ -386,7 +386,14 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         if (e.fullscreen) {
             $container.find('.video50-player').addClass('fullscreen');
             
-            // redraw container to avoid FF and Chrome bugs
+            // native fullscreen support
+            var player = $container.find('.video50-player')[0];
+            if (player.mozRequestFullScreen)
+                player.mozRequestFullScreen();
+            else if (player.webkitRequestFullScreen)
+                player.webkitRequestFullScreen();
+            
+            // redraw container to avoid FF and Chrome bug    // Get the element that we want to take into fullscreen mode
             me.forceRedraw($container);
         }
         else {

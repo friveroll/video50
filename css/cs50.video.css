@@ -66,6 +66,16 @@
     perspective: none;
 }
 
+.video50-player:-webkit-full-screen {
+    width: 100%;
+    height: 100%;
+}
+
+.video50-player:-moz-full-screen {    
+    width: 100%;
+    height: 100%;
+}
+
 .video50-player .video50-player-questions {
     position: absolute;
     left: 20px;

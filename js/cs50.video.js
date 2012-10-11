@@ -898,7 +898,7 @@ CS50.Video.prototype.loadSurvey50 = function() {
                         me.createPlayer();
                     }
                 });
-            }, 300);
+            }, 1000);
         }
     });
 };

@@ -43,7 +43,7 @@ CS50.Video = function(options) {
         throw 'Error: You must define a default video to play!';
 
     // determine initial video to play
-    this.currentVideo = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : this.options.video;
+    this.currentVideo = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo].path : this.options.video.path;
 
     // specify default values for optional parameters
     this.options = $.extend({
@@ -163,8 +163,8 @@ CS50.Video = function(options) {
                         </ul> \
                     </div> \
                     <button class="btn btn-questions btn-modal"> \
-                        <i class="icon-question-sign"></i> \
                         <span class="questions-number">0</span> \
+                        <span>Questions</span> \
                     </button> \
                 </div> \
                 <div class="flip-container"> \
@@ -630,7 +630,7 @@ CS50.Video.prototype.createNotifications = function() {
     
     // create notifications container
     var $modal = $player.find('.video50-player .modal-container');
-    this.notificationsContainer = $('<div class="video50-player-questions panel">').hide()[0];
+    this.notificationsContainer = $('<div class="video50-player-questions">').hide()[0];
    
     // build notifications container
     var $container = $(this.notificationsContainer);

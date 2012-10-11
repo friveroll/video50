@@ -99,7 +99,8 @@ CS50.Video = function(options) {
         plugins: {
             'captions-2': {
                 files: _.values(this.options.srt).join(),
-                labels: _.map(_.keys(this.options.srt), function(e) { return CS50.Video.Languages[e] }).join()
+                labels: _.map(_.keys(this.options.srt), function(e) { return CS50.Video.Languages[e] }).join(),
+                state: false
             }
         }
     }, this.options.playerOptions);
@@ -847,8 +848,13 @@ CS50.Video.prototype.loadSurvey50 = function() {
         dataType: 'jsonp',
         success: function(response) {
             // user does not have an authenticated session, so redirect
-            if (!response.authenticated)
-                window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
+            if (!response.authenticated) {
+                var w = window;
+                if (window.parent)
+                    w = window.parent;
+
+                w.location.href = me.options.survey50Url + '/login?return=' + w.location.href;
+            }
 
             // save authenticated user
             me.options.user = response.user;

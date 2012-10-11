@@ -33,6 +33,7 @@ To create a new CS50 Video player, instantiate a new `CS50.Video` object:
 The options object passed to the `CS50.Video` constructor can define the following keys:
 
 * `aspectRatio`: Aspect ratio for the video
+* `autojoin`: Group slug to automatically join upon logging in
 * `autostart`: True to start video automatically, false otherwise
 * `baseUrl`: Base URL for video50's directory
 * `checkUrl`: URL to be used for checking the answers to questions remotely

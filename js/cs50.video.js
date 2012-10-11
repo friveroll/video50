@@ -6,6 +6,7 @@ var CS50 = CS50 || {};
  *
  * @param options Player options:
  *      aspectRatio: Aspect ratio for the video
+ *      autojoin: Group slug to automatically join upon logging in
  *      autostart: True to start video automatically, false otherwise
  *      baseUrl: Base URL for video50's directory
  *      checkUrl: URL to be used for checking the answers to questions remotely
@@ -48,6 +49,7 @@ CS50.Video = function(options) {
     // specify default values for optional parameters
     this.options = $.extend({
         aspectRatio: 16/9,
+        autojoin: false,
         autostart: true,
         baseUrl: '.',
         checkUrl: false,
@@ -844,8 +846,13 @@ CS50.Video.prototype.loadSurvey50 = function() {
         dataType: 'jsonp',
         success: function(response) {
             // user does not have an authenticated session, so redirect
-            if (!response.authenticated)
-                window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
+            if (!response.authenticated) {
+                if (me.options.autojoin)
+                    window.location.href = me.options.survey50Url + '/join/' + me.options.autojoin + 
+                        '?return=' + window.location.href;
+                else
+                    window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
+            }
 
             // save authenticated user
             me.options.user = response.user;

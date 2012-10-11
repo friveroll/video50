@@ -341,6 +341,14 @@ CS50.Video.prototype.forceRedraw = function($container) {
     $container[0].offsetHeight; // no need to store this anywhere, the reference is enough
     $container[0].style.display = 'block';
     $(window).trigger('resize');
+    
+    setTimeout(function() {
+        $(window).trigger('resize');
+    }, 1000);
+    
+    setTimeout(function() {
+        $(window).trigger('resize');
+    }, 2000);
 }
 
 /**
@@ -410,6 +418,11 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             
         }
         else {
+            if (document.mozCancelFullScreen)
+                document.mozCancelFullScreen();
+            else if (document.webkitCancelFullScreen)
+                document.webkitCancelFullScreen();
+            
             $container.find('.video50-player').removeClass('fullscreen');
         }
         

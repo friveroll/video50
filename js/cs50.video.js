@@ -173,7 +173,11 @@ CS50.Video = function(options) {
                     </div> \
                 </div> \
                 <div class="flip-container"> \
-                    <div class="video-container"><div></div></div> \
+                    <div class="video-container"> \
+                        <div class="noflash"> \
+                            <a href="http://get.adobe.com/flashplayer" target="_blank">Download Flash</a> to view this video. \
+                        </div> \
+                    </div> \
                     <div class="modal-container"> \
                         <div class="transcript-container"> \
                             <div class="transcript-text-wrapper"> \

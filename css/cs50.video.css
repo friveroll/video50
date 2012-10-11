@@ -149,6 +149,16 @@
     background-color: #C75646;
 }
 
+.video50-player .video-container .noflash {
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+    font-size: 18px;
+    font-weight: bold;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
 .video50-player .player-navbar-title {
     font-size: 18px;
     font-weight: bold;

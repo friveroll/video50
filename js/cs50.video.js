@@ -309,7 +309,8 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
             // don't take both actions on the same question
             if (me.currentQuestion != e.question.id) {
                 // automatically go to the new question if user checked that box
-                if ($(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
+                if ($(me.notificationsContainer).find('#video50-notifications-auto').is(':checked') &&
+                        e.timecode == Math.floor(time.position))
                     me.showQuestion(e.question.id)
 
                 // put question at the top of the list of available questions
@@ -619,7 +620,10 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             // remove input
             $('.video50-txt-answer').remove();
             $container.find('.modal-container').fadeIn();
-            me.toggleModal($(me.notificationsContainer));
+
+            // hide question list if it was not visible before
+            if (!$(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
+                me.toggleModal($(me.notificationsContainer));
 
             // fade video back in while flip is occurring for smoothness
             $container.find('.video-container').fadeIn(600);
@@ -630,7 +634,10 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
                 // remove input
                 $('.video50-txt-answer').remove();
                 $container.find('.modal-container').fadeIn();
-                me.toggleModal($(me.notificationsContainer));
+
+                // hide question list if it was not visible before
+                if (!$(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
+                    me.toggleModal($(me.notificationsContainer));
 
                 // fade video back in while flip is occurring for smoothness
                 $container.find('.video-container').fadeIn(600);

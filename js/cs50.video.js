@@ -424,16 +424,12 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             
             // native fullscreen support
             var player = $container.find('.video50-player')[0];
-            if (player.mozRequestFullScreen)
-                player.mozRequestFullScreen();
-            else if (player.webkitRequestFullScreen)
+            if (player.webkitRequestFullScreen)
                 player.webkitRequestFullScreen();
             
         }
         else {
-            if (document.mozCancelFullScreen)
-                document.mozCancelFullScreen();
-            else if (document.webkitCancelFullScreen)
+            if (document.webkitCancelFullScreen)
                 document.webkitCancelFullScreen();
            
             $container.find('.video50-player').removeClass('fullscreen');

@@ -44,7 +44,7 @@ CS50.Video = function(options) {
         throw 'Error: You must define a default video to play!';
 
     // determine initial video to play
-    this.currentVideo = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo].path : this.options.video.path;
+    this.currentVideo = (typeof(this.options.video) == 'object') ? this.options.video[this.options.defaultVideo] : this.options.video;
 
     // specify default values for optional parameters
     this.options = $.extend({

@@ -47,7 +47,7 @@ CS50.Video = function(options) {
 
     // specify default values for optional parameters
     this.options = $.extend({
-        aspectRatio: 1.33,
+        aspectRatio: 16/9,
         autostart: true,
         baseUrl: '.',
         checkUrl: false,

@@ -637,6 +637,12 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
     // when transcript button pressed, toggle transcript
     $container.off('click', '.btn-transcript').on('click', '.btn-transcript', function(e) {
+        // don't show transcript if we are viewing a question
+        if ($container.find('.question-content').is(':visible')) {
+            $(this).removeClass('active');
+            return false;
+        }
+
         var $transcript = $container.find('.transcript-container');
         me.toggleModal($transcript, function() {
             // scroll modal to the correct point
@@ -674,7 +680,13 @@ CS50.Video.prototype.createNotifications = function() {
     $modal.append($container);
 
     // toggle modal when button clicked
-    $player.on('click', '.btn-questions', function() {
+    $player.on('click', '.btn-questions', function(e) {
+        // don't show transcript if we are viewing a question
+        if ($player.find('.question-content').is(':visible')) {
+            $(this).removeClass('active');
+            return false;
+        }
+
         me.toggleModal($container);
     });
 

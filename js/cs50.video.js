@@ -835,6 +835,7 @@ CS50.Video.prototype.loadSurvey50 = function() {
         3: CS50.Video.Render.TrueFalseRemote
     };
 
+    // check if user is logged in
     var me = this;
     $.ajax(this.options.survey50Url + '/users/authenticated', {
         data: {
@@ -852,53 +853,50 @@ CS50.Video.prototype.loadSurvey50 = function() {
                 me.analytics50.identify(me.options.user.id);
                 me.analytics50.name_tag(me.options.user.name);
             }
+        }
+    });
 
-            // what is this I don't even????????
-            setTimeout(function() {
-                // load questions from survey50
-                $.ajax(me.options.survey50Url + '/survey/surveys/get/' + me.options.survey50, {
-                    data: {
-                        jsonp: true
-                    },
-                    dataType: 'jsonp',
-                    success: function(response) {
-                        me.options.questions = [];
-                        _.each(response.Questions, function(e) {
-                            // parse question data/metadata
-                            var data = {};
-                            var metadata = {};
-                            if (e.question_data)
-                                data = JSON.parse(e.question_data);
-                            if (e.metadata)
-                                metadata = JSON.parse(e.metadata);
+    // load questions from survey50
+    $.ajax(me.options.survey50Url + '/survey/surveys/get/' + me.options.survey50, {
+        data: {
+            jsonp: true
+        },
+        dataType: 'jsonp',
+        success: function(response) {
+            me.options.questions = [];
+            _.each(response.Questions, function(e) {
+                // parse question data/metadata
+                var data = {};
+                var metadata = {};
+                if (e.question_data)
+                    data = JSON.parse(e.question_data);
+                if (e.metadata)
+                    metadata = JSON.parse(e.metadata);
 
-                            // timecode must be defined for video50 questions
-                            if (metadata.timecode) {
-                                // add basic question data
-                                var question = {
-                                    timecode: metadata.timecode,
-                                    question: {
-                                        id: e.id,
-                                        question: e.question,
-                                        render: renderers[e.type],
-                                        tags: metadata.tags || []
-                                    }
-                                };
+                // timecode must be defined for video50 questions
+                if (metadata.timecode) {
+                    // add basic question data
+                    var question = {
+                        timecode: metadata.timecode,
+                        question: {
+                            id: e.id,
+                            question: e.question,
+                            render: renderers[e.type],
+                            tags: metadata.tags || []
+                        }
+                    };
 
-                                // add each key from question data
-                                for (var key in data)
-                                    question.question[key] = data[key];
+                    // add each key from question data
+                    for (var key in data)
+                        question.question[key] = data[key];
 
-                                question.state = CS50.Video.QuestionState.UNSEEN;
-                                me.options.questions.push(question);
-                            }
-                        });
+                    question.state = CS50.Video.QuestionState.UNSEEN;
+                    me.options.questions.push(question);
+                }
+            });
 
-                        // load video player
-                        me.createPlayer();
-                    }
-                });
-            }, 1000);
+            // load video player
+            me.createPlayer();
         }
     });
 };

@@ -300,6 +300,15 @@
     margin-bottom: 0px;
 }
 
+.video50-notifications-options input[type=checkbox] {
+    position: absolute;
+    z-index: 99999;
+}
+
+.video50-notifications-options label {
+    margin-left: 18px !important;
+}
+
 .video50-notifications .table-striped tbody tr:nth-child(even) td, 
 .video50-notifications .table-striped tbody tr:nth-child(even) th {
     background-color: white;

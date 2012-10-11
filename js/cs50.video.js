@@ -848,13 +848,8 @@ CS50.Video.prototype.loadSurvey50 = function() {
         dataType: 'jsonp',
         success: function(response) {
             // user does not have an authenticated session, so redirect
-            if (!response.authenticated) {
-                var w = window;
-                if (window.parent)
-                    w = window.parent;
-
-                w.location.href = me.options.survey50Url + '/login?return=' + w.location.href;
-            }
+            if (!response.authenticated)
+                window.location.href = me.options.survey50Url + '/login?return=' + window.location.href;
 
             // save authenticated user
             me.options.user = response.user;

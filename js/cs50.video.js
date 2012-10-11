@@ -115,7 +115,7 @@ CS50.Video = function(options) {
                         </a> \
                         <ul class="dropdown-menu"> \
                             <% for (var i in videos) { %> \
-                                <li><a href="#" data-video="<%= videos[i] %>"><%= i %></a></li> \
+                                <li><a href="#" data-video="<%= videos[i].path %>"><%= i %></a></li> \
                             <% } %> \
                         </ul> \
                     </div> \

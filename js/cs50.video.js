@@ -295,6 +295,9 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
     var player = this.player;
     var $container = $(this.notificationsContainer).find('tbody');
 
+    // check if show all questions is checked
+    var showAll = $(this.notificationsContainer).find('#video50-notifications-all').prop('checked');
+
     // check if any of the given questions should be displayed at this timecode
     var me = this;
     var unseen = 0;
@@ -322,9 +325,9 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
                 });
             }
         }
-
+        
         // keep track of questions that haven't been seen yet
-        if (e.timecode <= Math.floor(time.position) && e.state == CS50.Video.QuestionState.UNSEEN)
+        if ((e.timecode <= Math.floor(time.position) || showAll) && e.state == CS50.Video.QuestionState.UNSEEN)
             unseen++;
 
         // update question count
@@ -342,7 +345,8 @@ CS50.Video.prototype.forceRedraw = function($container) {
     $container[0].offsetHeight; // no need to store this anywhere, the reference is enough
     $container[0].style.display = 'block';
     $(window).trigger('resize');
-    
+   
+    // I don't even why doesn't the full screen event have a callback
     setTimeout(function() {
         $(window).trigger('resize');
     }, 1000);
@@ -716,7 +720,7 @@ CS50.Video.prototype.createNotifications = function() {
         // remove all questions that appear after the current timecode
         else {
             _.each(me.options.questions, function(e) {
-                if (e.timecode > Math.floor(me.player.getCurrentTime()))
+                if (e.timecode > Math.floor(me.player.getPosition()))
                     $container.find('tr[data-question-id="' + e.question.id + '"]').remove();
             });
         }

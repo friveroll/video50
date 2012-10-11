@@ -14,6 +14,9 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
     if (!video.options.checkUrl)
         video.options.checkUrl = video.options.survey50Url + '/survey/questions/check';
 
+    // disable button while submitting
+    $(video.options.playerContainer).find('.btn-submit').attr('disabled', true).text('Submitting...');
+
     // send answer to server
     $.ajax({
         dataType: 'jsonp',
@@ -26,6 +29,7 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         success: function(response) {
             // inform the user if the response was correct
             CS50.Video.Render.displayCorrectness(response.correct, video);
+            $(video.options.playerContainer).find('.btn-submit').attr('disabled', false).text('Submit Response');
 
             // finish with this question
             callback.call(video, question.id, response.correct, {});

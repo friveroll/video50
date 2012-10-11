@@ -714,29 +714,6 @@ CS50.Video.prototype.createNotifications = function() {
 };
 
 /**
- * Swaps out the current modal for the one passed in, or toggles if already visible
- *
- * @param modal jquery object for the modal to show
- *
- */
-CS50.Video.prototype.toggleModal = function(modal, cb) {
-    if (cb == undefined) {
-        cb = function() {};
-    }
-
-    $container = $(this.options.playerContainer).find(".modal-container");
-    if (modal.is(':hidden')) {
-        $container.children().not(modal).slideUp('fast', function() {
-            modal.slideDown('fast', cb);
-        });
-    }
-    else
-        modal.slideUp('fast', cb);
-
-    return modal;
-}
-
-/**
  * Load the specified SRT file
  *
  * @param lang Language to load
@@ -999,6 +976,30 @@ CS50.Video.prototype.showQuestion = function(id) {
         }, 100);
     }
 };
+
+/**
+ * Swaps out the current modal for the one passed in, or toggles if already visible
+ *
+ * @param modal jquery object for the modal to show
+ *
+ */
+CS50.Video.prototype.toggleModal = function(modal, cb) {
+    if (cb == undefined) {
+        cb = function() {};
+    }
+
+    $container = $(this.options.playerContainer).find(".modal-container");
+    if (modal.is(':hidden')) {
+        $container.children().not(modal).slideUp('fast', function() {
+            modal.slideDown('fast', cb);
+        });
+    }
+
+    else
+        modal.slideUp('fast', cb);
+
+    return modal;
+}
 
 /**
  * Highlight the line corresponding to the current point in the video in the transcript

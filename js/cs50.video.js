@@ -413,8 +413,6 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             // if safari, don't bother, since natively supports
             var userAgent = navigator.userAgent;
             if (userAgent.indexOf('Safari') != -1 && userAgent.indexOf('Chrome') == -1) {
-                // redraw container to avoid FF and Chrome bug    
-                me.forceRedraw($container);
                 return;
             }
             

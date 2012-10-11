@@ -300,11 +300,6 @@
     margin-bottom: 0px;
 }
 
-.video50-notifications-options input[type=checkbox] {
-    position: absolute;
-    z-index: 99999;
-}
-
 .video50-notifications-options label {
     margin-left: 18px !important;
 }
@@ -348,10 +343,17 @@
     transform: rotateY(180deg);
 }
 
+.video50-notifications-options label {
+    display: inline-block !important;
+    margin-left: 0px !important;
+    margin-right: 5px !important;
+    margin-bottom: 0px;
+    vertical-align: middle;
+}
+
 .video50-question label, .video50-notifications label {
     display: inline;
-    margin-left: 0px;
-    margin-right: 5px;
+    margin-left: 5px;
     vertical-align: middle;
 }
 

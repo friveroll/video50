@@ -42,7 +42,6 @@
 
             $(function() {
                 var player = new CS50.Video({
-                    aspectRatio: 720 / 480,
                     autostart: true,
                     defaultVideo: '720p',
                     download: {
@@ -57,8 +56,8 @@
                     },
                     title: 'Lecture 0: Wednesday',
                     video: {
-                        '360p': '2012/fall/lectures/0/week0w-360p.mp4',
-                        '720p': '2012/fall/lectures/0/week0w-720p.mp4',
+                        '360p': { path: '2012/fall/lectures/0/week0w-360p.mp4' },
+                        '720p': { path: '2012/fall/lectures/0/week0w-720p.mp4' },
                     },
                     streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
                     videoUrl: 'http://cdn.cs50.net/',

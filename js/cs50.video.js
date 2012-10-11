@@ -404,10 +404,18 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     this.player.onFullscreen(function(e) {
         if (me.analytics50)
             me.analytics50.track('video50/fullscreen', { video: me.currentVideo });
-       
+      
         // degrade webkit perspective so fixed positioning works
         if (e.fullscreen) {
             $container.find('.video50-player').addClass('fullscreen');
+               
+            // if safari, don't bother, since natively supports
+            var userAgent = navigator.userAgent;
+            if (userAgent.indexOf('Safari') != -1 && userAgent.indexOf('Chrome') == -1) {
+                // redraw container to avoid FF and Chrome bug    
+                me.forceRedraw($container);
+                return;
+            }
             
             // native fullscreen support
             var player = $container.find('.video50-player')[0];
@@ -422,7 +430,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
                 document.mozCancelFullScreen();
             else if (document.webkitCancelFullScreen)
                 document.webkitCancelFullScreen();
-            
+           
             $container.find('.video50-player').removeClass('fullscreen');
         }
         

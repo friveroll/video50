@@ -378,16 +378,16 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     this.player = jwplayer(id).setup(this.options.playerOptions).onReady(function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);    
-        $container.find('.flip-question-container').css({ minHeight: height - NAVBAR_HEIGHT });
+        jwplayer(id).resize(width, height + NAVBAR_HEIGHT);
+        $container.find('.flip-question-container').css({ minHeight: height  + NAVBAR_HEIGHT });
     });
 
     // when resized, 
     $(window).on('resize', function() {
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
-        jwplayer(id).resize(width, height - NAVBAR_HEIGHT);
-        $container.find('.flip-question-container').css({ minHeight: height - NAVBAR_HEIGHT });
+        jwplayer(id).resize(width, height + NAVBAR_HEIGHT);
+        $container.find('.flip-question-container').css({ minHeight: height + NAVBAR_HEIGHT });
     }); 
 
     // player fullscreen

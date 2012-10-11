@@ -41,6 +41,7 @@
 }
 
 .video50-player .panel, .video50-player.panel {
+    text-align: left;
     background-color: #FFFFFF;
     border-top: 1px solid #DDD;
     -moz-box-shadow: rgba(0, 0, 0, 0.4) 0 1px 3px;
@@ -111,11 +112,24 @@
     left: 5px;
 }
 
-.video50-player .player-navbar .btn-questions {
+.video50-player .player-navbar .btn-group-right {
     position: absolute;
     top: 5px;
-    right: 65px;
+    right: 5px;
+}
+
+.video50-player .player-navbar .btn-questions {
     display: none;
+    padding: 4px 7px 4px;
+    vertical-align: top;
+}
+
+.video50-player .player-navbar .btn-group-transcript {
+    display: none;
+    vertical-align: top;
+}
+
+.video50-player .player-navbar .btn-transcript {
     padding: 4px 7px 4px;
 }
 
@@ -140,17 +154,6 @@
     font-weight: bold;
     margin-left: 10px;
     text-align: center;
-}
-
-.video50-player .player-navbar .btn-group-transcript {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    display: none;
-}
-
-.video50-player .player-navbar .btn-transcript {
-    padding: 4px 7px 4px;
 }
 
 .video50-player .flip-container {

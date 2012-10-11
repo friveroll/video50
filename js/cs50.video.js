@@ -149,23 +149,25 @@ CS50.Video = function(options) {
                 <div class="player-navbar"> \
                     <button class="btn btn-back"><i class="icon-arrow-left"></i> Back</button> \
                     <div class="player-navbar-title"><%= title %></div> \
-                    <div class="btn-group btn-group-transcript"> \
-                        <button class="btn btn-transcript btn-modal"><i class="icon-search"></i></button> \
-                        <button class="btn dropdown-toggle" data-toggle="dropdown"> \
-                            <span class="caret"></span> \
+                    <div class="btn-group-right"> \
+                        <button class="btn btn-questions btn-modal"> \
+                            <span class="questions-number">0</span> \
+                            <span>Questions</span> \
                         </button> \
-                        <ul class="dropdown-menu transcript-lang"> \
-                            <% for (var i in srt) { %> \
-                                <li> \
-                                    <a href="#" data-lang="<%= i %>"><%= CS50.Video.Languages[i] %></a> \
-                                </li> \
-                            <% } %> \
-                        </ul> \
+                        <div class="btn-group btn-group-transcript"> \
+                            <button class="btn btn-transcript btn-modal"><i class="icon-search"></i></button> \
+                            <button class="btn dropdown-toggle" data-toggle="dropdown"> \
+                                <span class="caret"></span> \
+                            </button> \
+                            <ul class="dropdown-menu transcript-lang"> \
+                                <% for (var i in srt) { %> \
+                                    <li> \
+                                        <a href="#" data-lang="<%= i %>"><%= CS50.Video.Languages[i] %></a> \
+                                    </li> \
+                                <% } %> \
+                            </ul> \
+                        </div> \
                     </div> \
-                    <button class="btn btn-questions btn-modal"> \
-                        <span class="questions-number">0</span> \
-                        <span>Questions</span> \
-                    </button> \
                 </div> \
                 <div class="flip-container"> \
                     <div class="video-container"><div></div></div> \
@@ -358,11 +360,11 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
     // show transcript button if there is a transcript
     if (_.keys(this.options.srt).length)
-        $container.find('.btn-group-transcript').show();
+        $container.find('.btn-group-transcript').css({ 'display': 'inline-block' });
 
     // show questions button if there are questions
     if (this.options.questions.length != 0)
-        $container.find('.btn-questions').show();
+        $container.find('.btn-questions').css({ 'display': 'inline-block' });
 
     // apply degraded classes if flip is not supported
     if (!this.supportsFlip)

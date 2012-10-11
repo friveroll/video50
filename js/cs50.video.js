@@ -570,6 +570,18 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         }
     });
 
+    $(document).on('mozfullscreenchange', function() {
+        if (!document.mozFullScreen) {
+            jwplayer(id).setFullscreen(false);
+        }
+    });
+    
+    $(document).on('webkitfullscreenchange', function() {
+        if (!document.webkitIsFullScreen) {
+            jwplayer(id).setFullscreen(false);
+        }
+    });
+
     $container.on('click', '.btn-modal', function(e) {
         // if this button is active already, undepress it
         if ($(this).hasClass('active'))

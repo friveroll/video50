@@ -315,14 +315,15 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
                 // put question at the top of the list of available questions
                 var $question = $(me.templates.notification({
                     question: e
-                })).hide();
-
+                }))
+    
+                $question.find('td').hide();
                 $container.prepend($question);
-                $question.fadeIn('fast', function() {
+                $question.find('td').fadeIn('fast', function() {
                     $question.find('[rel=tooltip]').tooltip({
                         placement: 'right'
                     });
-                });
+                })
             }
         }
         

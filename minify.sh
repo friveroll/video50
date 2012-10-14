@@ -5,6 +5,7 @@ mkdir -p build/img
 
 echo "Building JavaScript..."
 cat \
+    js/lib/jquery.easing.min.js \
     js/lib/underscore-min.js \
     js/lib/bootstrap.min.js \
     js/lib/jquery.scroll.js \

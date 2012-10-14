@@ -147,6 +147,8 @@
     -webkit-border-radius: 2px;
     -moz-border-radius: 2px;
     background-color: #C75646;
+    zoom:1;
+    position:relative;
 }
 
 .video50-player .video-container .noflash {

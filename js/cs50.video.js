@@ -337,10 +337,34 @@ CS50.Video.prototype.checkQuestionAvailable = function(time) {
         // keep track of questions that haven't been seen yet
         if ((e.timecode <= Math.floor(time.position) || showAll) && e.state == CS50.Video.QuestionState.UNSEEN)
             unseen++;
-
-        // update question count
-        $(me.options.playerContainer).find('.questions-number').text(unseen);
     })
+    
+    // update question count
+    var $num = $(me.options.playerContainer).find('.questions-number');
+   
+    // bounce if number of questions increases
+    if (unseen > parseFloat($num.text())) {
+        // update the number 
+        $num.text(unseen);
+
+        // clear old bounces, set up new bounce
+        clearInterval(me.bounceInterval);
+        
+        me.bounceInterval = setInterval(function() {
+            $num.animate({"margin-top": "-10px"}, 300, 'jswing')
+            .animate({"margin-top": "0px"}, 400, 'easeOutBounce');
+        }, 1500);
+
+        // bounce disappears after 10 seconds
+        clearInterval(me.bounceTimeout);
+        me.bounceTimeout = setTimeout(function() {
+            clearInterval(me.bounceInterval);
+        }, 10000);
+    } 
+    else {
+        // update the number 
+        $num.text(unseen);
+    }
 };
 
 

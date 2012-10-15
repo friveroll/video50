@@ -139,7 +139,7 @@ CS50.Video.Languages = {
     fon:"Fon",
     frp:"Franco-ProvenÃ§al (Arpitan)",
     fre_ca:"French (Canada)",
-    fr_efr:"French (France)",
+    fre_fr:"French (France)",
     frs:"Frisian, Easter",
     frr:"Frisian, Northen",
     fry:"Frisian, Wester",

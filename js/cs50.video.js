@@ -235,7 +235,13 @@ CS50.Video = function(options) {
 
         notification: ' \
             <tr data-question-id="<%= question.question.id %>"> \
-                <td class="question-state" style="width: 1px"></td> \
+                <% if (question.state == CS50.Video.QuestionState.CORRECT) { %> \
+                    <td class="question-state" style="width: 1px"><i class="icon-ok"></i></td> \
+                <% } else if (question.state == CS50.Video.QuestionState.INCORRECT) { %> \
+                    <td class="question-state" style="width: 1px"><i class="icon-remove"></i></td> \
+                <% } else { %> \
+                    <td class="question-state" style="width: 1px"></td> \
+                <% } %> \
                 <td> \
                     <a href="#" rel="tooltip" title="<%= question.question.question %>"> \
                         <% \
@@ -275,17 +281,19 @@ CS50.Video = function(options) {
     this.options.questions.sort(function(a, b) { return (a.timecode - b.timecode); }); 
 
     // initialize analytics
-    this.analytics50 = false;
-    if (this.options.mixpanelKey) {
-        this.analytics50 = new CS50.Analytics({
+    if (!this.options.mixpanelKey)
+        window.analytics50 = false;
+
+    else if (!window.analytics50) {
+        window.analytics50 = new CS50.Analytics({
              mixpanel: { 
                  token: this.options.mixpanelKey
              }
         }, true);
 
         // identify user
-        this.analytics50.identify(this.options.user.id);
-        this.analytics50.name_tag(this.options.user.name);
+        window.analytics50.identify(this.options.user.id);
+        window.analytics50.name_tag(this.options.user.name);
     }
 
     // if survey50 ID given, then load questions remotely
@@ -473,8 +481,8 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
     // player fullscreen
     this.player.onFullscreen(function(e) {
-        if (me.analytics50)
-            me.analytics50.track('video50/fullscreen', { video: me.currentVideo });
+        if (window.analytics50)
+            window.analytics50.track('video50/fullscreen', { video: me.currentVideo });
       
         // degrade webkit perspective so fixed positioning works
         if (e.fullscreen) {
@@ -505,20 +513,20 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
 
     // player pause
     this.player.onPause(function(e) {
-        if (me.analytics50)
-            me.analytics50.track('video50/pause', { video: me.currentVideo });
+        if (window.analytics50)
+            window.analytics50.track('video50/pause', { video: me.currentVideo });
     });
 
     // player resume
     this.player.onPlay(function(e) {
-        if (me.analytics50)
-            me.analytics50.track('video50/play', { video: me.currentVideo });
+        if (window.analytics50)
+            window.analytics50.track('video50/play', { video: me.currentVideo });
     });
 
     // player seek
     this.player.onSeek(function(e) {
-        if (me.analytics50)
-            me.analytics50.track('video50/seek', { 
+        if (window.analytics50)
+            window.analytics50.track('video50/seek', { 
                 from: e.position,
                 to: e.offset,
                 video: me.currentVideo 
@@ -596,8 +604,8 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             $container.find('video')[0].playbackRate = rate;
 
             // log playback speed change
-            if (me.analytics50)
-                me.analytics50.track('video50/playbackRate', { 
+            if (window.analytics50)
+                window.analytics50.track('video50/playbackRate', { 
                     rate: rate,
                     video: this.currentVideo 
                 });
@@ -632,8 +640,8 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         // video downoaded
         $playbackContainer.on('click', '.btn-download li a', function(e) {
             // log download
-            if (me.analytics50)
-                me.analytics50.track('video50/download', {
+            if (window.analytics50)
+                window.analytics50.track('video50/download', {
                     href: $(this).attr('href'),
                     video: me.currentVideo
                 });
@@ -757,8 +765,8 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     });
 
     // log video view
-    if (this.analytics50)
-        this.analytics50.track('video50/load', { video: this.currentVideo });
+    if (window.analytics50)
+        window.analytics50.track('video50/load', { video: this.currentVideo });
 
     this.loadSrt(this.options.defaultLanguage);
     this.createNotifications();
@@ -966,9 +974,9 @@ CS50.Video.prototype.loadSurvey50 = function() {
 
             // save authenticated user
             me.options.user = response.user;
-            if (me.analytics50) {
-                me.analytics50.identify(me.options.user.id);
-                me.analytics50.name_tag(me.options.user.name);
+            if (window.analytics50) {
+                window.analytics50.identify(me.options.user.id);
+                window.analytics50.name_tag(me.options.user.name);
             }
         }
     });
@@ -1007,7 +1015,15 @@ CS50.Video.prototype.loadSurvey50 = function() {
                     for (var key in data)
                         question.question[key] = data[key];
 
+                    // determine correctness of question
                     question.state = CS50.Video.QuestionState.UNSEEN;
+                    _.each(e.Responses, function(r) {
+                        if (question.state == CS50.Video.QuestionState.UNSEEN && !r.correct)
+                            question.state = CS50.Video.QuestionState.INCORRECT;
+                        else if (r.correct)
+                            question.state = CS50.Video.QuestionState.CORRECT;
+                    });
+
                     me.options.questions.push(question);
                 }
             });
@@ -1034,8 +1050,8 @@ CS50.Video.prototype.renderCallback = function(id, correct, data) {
     question.state = (correct) ? CS50.Video.QuestionState.CORRECT : CS50.Video.QuestionState.INCORRECT;
 
     // log event
-    if (this.analytics50)
-        this.analytics50.track('video50/answerQuestion', {
+    if (window.analytics50)
+        window.analytics50.track('video50/answerQuestion', {
             correct: correct,
             id: id,
             video: this.currentVideo
@@ -1061,8 +1077,8 @@ CS50.Video.prototype.showQuestion = function(id) {
 
     if (question) {
         // log question view
-        if (this.analytics50)
-            this.analytics50.track('video50/viewQuestion', {
+        if (window.analytics50)
+            window.analytics50.track('video50/viewQuestion', {
                 id: id,
                 video: this.currentVideo
             });

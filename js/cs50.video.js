@@ -97,14 +97,14 @@ CS50.Video = function(options) {
             src: [this.options.baseUrl, 'player.swf'].join('/')
         }],
         width: '100%',
-        skin: [this.options.baseUrl, 'skins/glow/glow.xml'].join('/'),
-        plugins: {
+        skin: [this.options.baseUrl, 'skins/glow/glow.xml'].join('/')
+        /*plugins: {
             'captions-2': {
                 files: _.values(this.options.srt).join(),
                 labels: _.map(_.keys(this.options.srt), function(e) { return CS50.Video.Languages[e] }).join(),
                 state: false
             }
-        }
+        }*/
     }, this.options.playerOptions);
 
     // templates for plugin
@@ -159,15 +159,30 @@ CS50.Video = function(options) {
                         </button> \
                         <div class="btn-group btn-group-transcript"> \
                             <button class="btn btn-transcript btn-modal"><i class="icon-search"></i></button> \
+                            <button class="btn btn-cc"><span class="cc-label">CC</span></button> \
                             <button class="btn dropdown-toggle" data-toggle="dropdown"> \
                                 <span class="caret"></span> \
                             </button> \
                             <ul class="dropdown-menu transcript-lang pull-right"> \
-                                <% for (var i in srt) { %> \
-                                    <li> \
-                                        <a href="#" data-lang="<%= i %>"><%= CS50.Video.Languages[i] %></a> \
-                                    </li> \
-                                <% } %> \
+                                <li> \
+                                    <table> \
+                                        <tr> \
+                                        <% var counter = 0; %> \
+                                        <% _.each(srt, function(elem, key) { %> \
+                                            <% if (counter % 6 == 0) { %> \
+                                                <td> \
+                                            <% } %> \
+                                            <a href="#" data-lang="<%= key %>"> \
+                                                <%= CS50.Video.Languages[key] %> \
+                                                <% counter++ %> \
+                                            </a> \
+                                            <% if (counter % 6 == 0) { %> \
+                                                </td> \
+                                            <% } %> \
+                                        <% }) %> \
+                                        </tr> \
+                                    </table> \
+                                </li> \
                             </ul> \
                         </div> \
                     </div> \
@@ -177,6 +192,9 @@ CS50.Video = function(options) {
                         <div class="noflash"> \
                             <a href="http://get.adobe.com/flashplayer" target="_blank">Download Flash</a> to view this video. \
                         </div> \
+                    </div> \
+                    <div class="cc-container"> \
+                        <div class="cc-text"></div> \
                     </div> \
                     <div class="modal-container"> \
                         <div class="transcript-container"> \
@@ -396,6 +414,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     // create html for video player
     var $container = $(this.options.playerContainer);
     $container.empty();
+
     $container.html(this.templates.player({
         defaultLanguage: this.options.defaultLanguage,
         srt: this.options.srt,
@@ -497,8 +516,10 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             // check if a new question is available
             me.checkQuestionAvailable(e);
 
-            // update highlight on the transcript
+            // update highlight on the transcript, update cc
             me.updateTranscriptHighlight(e);
+            me.updateCC(e);
+            
             this.lastUpdate = (new Date).getTime();
         }
     });
@@ -646,6 +667,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
             // remove input
             $('.video50-txt-answer').remove();
             $container.find('.modal-container').fadeIn();
+            $container.find('.cc-container').fadeIn();
 
             // hide question list if it was not visible before
             if (!$(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
@@ -660,6 +682,7 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
                 // remove input
                 $('.video50-txt-answer').remove();
                 $container.find('.modal-container').fadeIn();
+                $container.find('.cc-container').fadeIn();
 
                 // hide question list if it was not visible before
                 if (!$(me.notificationsContainer).find('#video50-notifications-auto').is(':checked'))
@@ -668,6 +691,18 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
                 // fade video back in while flip is occurring for smoothness
                 $container.find('.video-container').fadeIn(600);
             });
+        }
+    });
+
+    // toggle CC when toolbar button clicked
+    $container.on('click', '.btn-cc', function(e) {
+        if ($(this).hasClass('on')) {
+            $(this).removeClass('on');
+            $container.find('.cc-text').hide();
+        }
+        else {
+            $(this).addClass('on');
+            $container.find('.cc-text').css({ "display" : "inline-block" });
         }
     });
 
@@ -771,6 +806,9 @@ CS50.Video.prototype.loadSrt = function(language) {
     this.srtData = {};
     var player = this.player;
     var me = this;
+    
+    $(me.options.playerContainer).find('.transcript-lang a[data-lang]').removeClass('active');
+    $(me.options.playerContainer).find('.transcript-lang a[data-lang=' + language + ']').addClass('active');
 
     if (this.options.srt[language]) {
         $.get(this.options.srt[language], function(response) {
@@ -780,6 +818,9 @@ CS50.Video.prototype.loadSrt = function(language) {
             if (_.keys(me.options.srt).length) {
                 // clear previous text
                 var $container = $(me.options.playerContainer).find('.transcript-text');
+                
+                // look for a previous caption if already active, keep the timecode
+                var oldTime = $container.find('.highlight[data-time]').attr('data-time');
                 $container.empty();
 
                 // iterate over each timecode
@@ -806,15 +847,23 @@ CS50.Video.prototype.loadSrt = function(language) {
                     }
                 }
 
+                // if there was a previously active timecode, update cc and highlight
+                if (oldTime) {
+                    var time = { position: oldTime };
+                    me.updateCC(time);
+                    me.updateTranscriptHighlight(time);
+                }
+
                 // when transcript language is changed, refresh srt data and captioning
-                $(me.options.playerContainer).on('click', '.transcript-lang a[data-lang]', function() {
+                $(me.options.playerContainer).off('click', '.transcript-lang a[data-lang]')
+                    .on('click', '.transcript-lang a[data-lang]', function() {
                     // refresh transcript
                     var lang = $(this).attr('data-lang');
                     me.loadSrt(lang);
                 });
 
                 // when a line is clicked, seek to that time in the video
-                $container.on('click', 'a', function() {
+                $container.off('click', 'a').on('click', 'a', function() {
                     // determine timecode associated with line
                     var time = $(this).attr('data-time');
 
@@ -825,7 +874,8 @@ CS50.Video.prototype.loadSrt = function(language) {
                 });
 
                 // searching over a transcript
-                $(me.options.playerContainer).on('keyup', '.transcript-search', function() {
+                $(me.options.playerContainer).off('keyup', '.transcript-search')
+                    .on('keyup', '.transcript-search', function() {
                     if ($.trim($(this).val()) == "") {
                         $(me.options.playerContainer).find("[data-time], br")
                             .css({ "display": "inline", "margin-bottom": "0px" });
@@ -843,7 +893,8 @@ CS50.Video.prototype.loadSrt = function(language) {
                     }
                 });
                 
-                $(me.options.playerContainer).on('click', '.transcript-search-wrapper i', function() {
+                $(me.options.playerContainer).off('click', '.transcript-search-wrapper i')
+                    .on('click', '.transcript-search-wrapper i', function() {
                     $(me.options.playerContainer).find('.transcript-search-wrapper .transcript-search').val("");
                     $(me.options.playerContainer).find('.transcript-search').trigger('keyup');
                 });
@@ -1009,7 +1060,9 @@ CS50.Video.prototype.showQuestion = function(id) {
 
         // flip player to show question
         var me = this;
+        $(this.options.playerContainer).find('.cc-container').fadeOut();
         $(this.options.playerContainer).find('.modal-container').fadeOut(100, function() {
+            
             if (me.supportsFlip) {
                 $(me.options.playerContainer).find('.video-container').fadeOut(600);
                 $(me.options.playerContainer).find('.flip-container').addClass('flipped');
@@ -1051,6 +1104,22 @@ CS50.Video.prototype.toggleModal = function(modal, cb) {
 
     return modal;
 }
+
+/**
+ * Update CC based on current timecode
+ *
+ */
+CS50.Video.prototype.updateCC = function(time) {
+    var time = Math.floor(time.position);
+    var $container = $(this.options.playerContainer);
+    var $active = $container.find('.transcript-container [data-time="' + time + '"]');
+    var $text = $container.find('.cc-container .cc-text');
+ 
+    // if current CC is not correct
+    if ($active.length && $text.attr('data-time') != time) {
+        $text.text($active.text());
+    }
+};
 
 /**
  * Highlight the line corresponding to the current point in the video in the transcript

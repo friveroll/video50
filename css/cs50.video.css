@@ -129,8 +129,57 @@
     vertical-align: top;
 }
 
+.video50-player .player-navbar .btn-group-transcript .transcript-lang {
+    max-width: 500px; 
+    line-height: normal;
+    padding: 3px 10px 3px 5px;
+    min-width: 0px;
+}
+
+.video50-player .player-navbar .btn-group-transcript .transcript-lang td {
+    vertical-align: top;
+}
+
+.video50-player .player-navbar .btn-group-transcript .transcript-lang a {
+    line-height: normal;
+    text-decoration: none;
+    margin: 2px;
+    padding: 3px 20px 3px 5px;
+}
+
+.video50-player .player-navbar .btn-group-transcript .transcript-lang a.active {
+    background-color: #EEE;
+}
+
+.video50-player .player-navbar .btn-group-transcript .transcript-lang a:hover {
+    background-color: #EEE;
+}
+
 .video50-player .player-navbar .btn-transcript {
     padding: 4px 7px 4px;
+}
+
+.video50-player .player-navbar .btn-cc {
+    padding: 4px 7px 4px;
+}
+
+.video50-player .player-navbar .cc-label {
+    border-radius: 2px;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    background-color: #333;
+    color: white;
+    font-size: 9px;
+    line-height: normal;
+    display: inline-block;
+    padding: 1px 3px 2px 3px;
+    margin-top: -1px;
+    vertical-align: top;
+    margin-top: 2px;
+}
+
+.video50-player .player-navbar .btn-cc.on .cc-label {
+    background-color: #0069F0;
 }
 
 .video50-player .player-navbar .btn-questions .questions-number {
@@ -229,6 +278,49 @@
     -moz-backface-visibility: visible !important;
     -o-backface-visibility: visible !important;
     backface-visibility: visible !important;
+}
+
+.video50-player .cc-container {
+    position: absolute;
+    bottom: 28px;
+    left: 0px;
+    right: 0px;
+    z-index: 9;
+    padding: 3%;
+    text-align: center;
+    min-height: 
+}
+
+.video50-player.fullscreen .cc-container {
+    position: fixed;
+    bottom: 28px;
+    left: 0px;
+    right: 0px;
+    z-index: 2147483000;
+    padding: 3%;
+    text-align: center;
+    font-size: 20px;
+}
+
+.video50-player .cc-text {
+    display: none;
+    text-align: center;
+    vertical-align: text-bottom;
+    background-color: rgba(0, 0, 0, .7);
+    color: white;
+    padding: 3px 6px;
+    word-break: break-word;
+    min-height: 14px;
+}
+
+.video50-player.fullscreen .cc-text {
+    display: none;
+    text-align: center;
+    vertical-align: text-bottom;
+    background-color: rgba(0, 0, 0, .7);
+    color: white;
+    padding: 12px 16px;
+    word-break: break-word;
 }
 
 .video50-player .transcript-container {

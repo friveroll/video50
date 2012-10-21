@@ -648,12 +648,28 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
     $(document).on('mozfullscreenchange', function() {
         if (!document.mozFullScreen) {
             jwplayer(id).setFullscreen(false);
+            
+            $(window).trigger('resize');
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }, 1000);
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }, 2000);
         }
     });
     
     $(document).on('webkitfullscreenchange', function() {
         if (!document.webkitIsFullScreen) {
             jwplayer(id).setFullscreen(false);
+            
+            $(window).trigger('resize');
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }, 1000);
+            setTimeout(function() {
+                $(window).trigger('resize');
+            }, 2000);
         }
     });
 

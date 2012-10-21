@@ -446,14 +446,29 @@ CS50.Video.prototype.createPlayer = function(seekStart) {
         var height = width / me.options.aspectRatio;
         jwplayer(id).resize(width, height + NAVBAR_HEIGHT);
         $container.find('.flip-question-container').css({ minHeight: height  + NAVBAR_HEIGHT });
+        
+        // update the font size of the captions
+        $container.find('.cc-container .cc-text').css({
+            "font-size": Math.max(12, width/45) + "px",
+            "padding": (.00875 * width) + "px " + (.01 * width) + "px",
+            "line-height": Math.max(12, width/45) + 6 + "px"
+        });
     });
 
     // when resized, 
     $(window).on('resize', function() {
+        // fit the player to the video, perfectly
         var width = $container.find('.video-container').width();
         var height = width / me.options.aspectRatio;
         jwplayer(id).resize(width, height + NAVBAR_HEIGHT);
         $container.find('.flip-question-container').css({ minHeight: height + NAVBAR_HEIGHT });
+    
+        // update the font size of the captions
+        $container.find('.cc-container .cc-text').css({
+            "font-size": Math.max(12, width/45) + "px",
+            "padding": (.00875 * width) + "px " + (.01 * width) + "px",
+            "line-height": Math.max(12, width/45) + 6 + "px"
+        });
     }); 
 
     // player fullscreen

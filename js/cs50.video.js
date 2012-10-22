@@ -169,14 +169,14 @@ CS50.Video = function(options) {
                                         <tr> \
                                         <% var counter = 0; %> \
                                         <% _.each(srt, function(elem, key) { %> \
-                                            <% if (counter % 6 == 0) { %> \
+                                            <% if (counter % 12 == 0) { %> \
                                                 <td> \
                                             <% } %> \
                                             <a href="#" data-lang="<%= key %>"> \
                                                 <%= CS50.Video.Languages[key] %> \
                                                 <% counter++ %> \
                                             </a> \
-                                            <% if (counter % 6 == 0) { %> \
+                                            <% if (counter % 12 == 0) { %> \
                                                 </td> \
                                             <% } %> \
                                         <% }) %> \

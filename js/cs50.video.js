@@ -896,9 +896,12 @@ CS50.Video.prototype.loadSrt = function(language) {
                 // when transcript language is changed, refresh srt data and captioning
                 $(me.options.playerContainer).off('click', '.transcript-lang a[data-lang]')
                     .on('click', '.transcript-lang a[data-lang]', function() {
-                    // refresh transcript
                     var lang = $(this).attr('data-lang');
                     me.loadSrt(lang);
+                    
+                    // refresh transcript
+                    if (!$(me.options.playerContainer).find('.btn-cc').is('.on'))
+                        $(me.options.playerContainer).find('.btn-cc').click();
                 });
 
                 // when a line is clicked, seek to that time in the video

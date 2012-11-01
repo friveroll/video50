@@ -11,6 +11,7 @@ cat \
     js/lib/jquery.scroll.js \
     js/lib/jwplayer.js \
     js/lib/cs50.analytics.js \
+    js/lib/highlight.pack.js \
     js/cs50.video.js \
     js/cs50.video.render.js \
     js/cs50.video.languages.js \

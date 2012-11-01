@@ -77,9 +77,12 @@ CS50.Video.Render.displayCorrectness = function(correct, video, $container) {
 CS50.Video.Render.FreeResponse = function(video, container, data, callback, remote) {
     // render question and input area placeholder
     var $container = $(container);
-    $container.append('<h2>' + data.question + '</h2>');
+    $container.append('<h2>' + CS50.Video.Render.renderCodeTags(data.question) + '</h2>');
     var $placeholder = $('<input type="text" class="txt-answer-location" />');
     $container.append($placeholder);
+
+    // syntax highlight the post
+    $container.find('pre').each(function(i, e) { hljs.highlightBlock(e, null) });
 
     // create input area that is absolutely positioned to avoid transform weirdness
     var $input = $('<input type="text" class="video50-txt-answer" />');
@@ -158,7 +161,10 @@ CS50.Video.Render.FreeResponseRemote = function(video, container, data, callback
 CS50.Video.Render.MultipleChoice = function(video, container, data, callback, remote) {
     // render question title
     var $container = $(container);
-    $container.append('<h2>' + data.question + '</h2>');
+    $container.append('<h2>' + CS50.Video.Render.renderCodeTags(data.question) + '</h2>');
+
+    // syntax highlight the post
+    $container.find('pre').each(function(i, e) { hljs.highlightBlock(e, null) });
 
     // display each choice
     $choices = $('<div class="question-choices">');
@@ -302,6 +308,24 @@ CS50.Video.Render.TrueFalse = function(video, container, data, callback, remote)
         tags: data.tags,
         trueFalse: true,
     }, callback, remote);
+};
+
+/** 
+ * Format the content of a post so that code and tt tags show
+ * @param content Content to clean
+ * @return Cleaned version of string
+ *
+ */
+CS50.Video.Render.renderCodeTags = function(content) {
+    // replace <code> with <pre>
+    content = content.replace(/&lt;code&gt;/g, '<pre>').replace(/&lt;\/code&gt;/g, '</pre>');
+    content = content.replace(/&lt;pre&gt;/g, '<pre>').replace(/&lt;\/pre&gt;/g, '</pre>');
+
+    // enable <tt> elements
+    content = content.replace(/`([^`]*)`/g, function($1) { return '<tt>' + $1.replace(/`/g, '') + '</tt>'; });       
+    content = content.replace(/&lt;tt&gt;/g, '<tt>').replace(/&lt;\/tt&gt;/g, '</tt>');
+
+    return content;
 };
 
 /**

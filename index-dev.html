@@ -10,12 +10,13 @@
         <script type="text/javascript" src="js/lib/jquery.scroll.js"></script>
         <script type="text/javascript" src="js/lib/jwplayer.js"></script>
         <script type="text/javascript" src="js/lib/cs50.analytics.js"></script>
+        <script type="text/javascript" src="js/lib/highlight.pack.js"></script>
         <script type="text/javascript" src="js/cs50.video.js"></script>
         <script type="text/javascript" src="js/cs50.video.render.js"></script>
         <script type="text/javascript" src="js/cs50.video.languages.js"></script>
 
         <script>
-            var questions = [
+            /*var questions = [
                 {
                     timecode: 10,
                     question: {
@@ -46,8 +47,19 @@
                         tags: ['Algorithms', 'Insertion Sort'],
                         tolerance: 0.1
                     }
+                },
+                {
+                    timecode: 5,
+                    question: {
+                        id: 3,
+                        render: CS50.Video.Render.Numeric,
+                        answer: 35,
+                        question: '&lt;code&gt;int main(void) { int x = 0; }&lt;/code&gt;',
+                        tags: ['Algorithms', 'Insertion Sort'],
+                        tolerance: 0.1
+                    }
                 }
-            ];
+            ];*/
 
             $(function() {
                 var player = new CS50.Video({
@@ -59,7 +71,7 @@
                         '720p': '2012/fall/lectures/0/week0w-720p.mp4',
                     },
                     playerContainer: '#video',
-                    questions: questions,
+                    //questions: questions,
                     srt:
 { "ara" : "http://cdn.cs50.net.s3.amazonaws.com/2012/fall/lectures/0/lang/ara/week0w-edX.srt?response-cache-control=no-cache&AWSAccessKeyId=AKIAJXVDJ7CBFTKPYYPQ&Expires=1353165351&Signature=PUXWaD56yAwLGdGvyumvjmNqgW0%3D",
       "chi_hans" : "http://cdn.cs50.net.s3.amazonaws.com/2012/fall/lectures/0/lang/chi_hans/week0w-edX.srt?response-cache-control=no-cache&AWSAccessKeyId=AKIAJXVDJ7CBFTKPYYPQ&Expires=1353165351&Signature=NyMFwa2IlFjtt9GEzhOkQRLudus%3D",
@@ -88,9 +100,9 @@
                     },
                     streamUrl: 'rtmp://stream.cs50.net/cfx/st/',
                     videoUrl: 'http://cdn.cs50.net/',
-                    //mixpanelKey: '49c79a74811ced39cdb8f8433861ec2f',
-                    //survey50: 1,
-                    //survey50Url: 'http://apps.cs50.net'
+                    // mixpanelKey: '49c79a74811ced39cdb8f8433861ec2f',
+                    survey50: 28,
+                    survey50Url: 'http://apps.cs50.com'
                 });
             });
         </script>

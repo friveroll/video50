@@ -243,7 +243,7 @@ CS50.Video = function(options) {
                     <td class="question-state" style="width: 1px"></td> \
                 <% } %> \
                 <td> \
-                    <a href="#" rel="tooltip" title="<%= question.question.question %>"> \
+                    <a href="#" rel="tooltip" title="<%- question.question.question.substring(0, 255) %>"> \
                         <% \
                             if (question.question.tags && question.question.tags.length) \
                                 print(question.question.tags.join(", ")); \
@@ -943,6 +943,28 @@ CS50.Video.prototype.loadSrt = function(language) {
             }
         });
     }
+};
+
+/** 
+ * Format the content of a post so that code and tt tags show up it can be highlighted correctly
+ * @param content Content to clean
+ * @return Cleaned version of string
+ *
+ */
+CS50.Video.prototype.renderCodeTags = function(content) {
+    // replace <code> with <pre>
+    content = content.replace(/&lt;code&gt;/g, '<pre>').replace(/&lt;\/code&gt;/g, '</pre>');
+
+    // enable <tt> elements
+    content = content.replace(/`([^`]*)`/g, function($1) { return '<tt>' + $1.replace(/`/g, '') + '</tt>'; });         content = content.replace(/&lt;tt&gt;/g, '<tt>').replace(/&lt;\/tt&gt;/g, '</tt>');
+
+    // strip paragraph tags only when within pre tags
+    content = content.replace(/<pre>([\s\S]*)<\/pre>/g, function($1) {
+        return $1.replace(/(<p>)|(<\/p>)/g, '')
+                 .replace(/(&nbsp;\n){2}|(&nbsp;$)/g, '');
+    });
+
+    return content;
 };
 
 /**

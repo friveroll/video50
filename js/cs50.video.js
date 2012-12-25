@@ -53,7 +53,7 @@ CS50.Video = function(options) {
         autostart: true,
         baseUrl: '.',
         checkUrl: false,
-        defaultLanguage: 'eng',
+        defaultLanguage: 'spa',
         defaultVideo: false,
         download: false,
         mixpanelKey: false,
@@ -126,7 +126,7 @@ CS50.Video = function(options) {
                 <% if (typeof(downloads) == "object") { %> \
                     <div class="btn-group btn-download"> \
                         <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"> \
-                            Download <span class="caret"></span> \
+                            Descarga <span class="caret"></span> \
                         </a> \
                         <ul class="dropdown-menu"> \
                             <% for (var i in downloads) { %> \
@@ -155,7 +155,7 @@ CS50.Video = function(options) {
                     <div class="btn-group-right"> \
                         <button class="btn btn-questions btn-modal"> \
                             <span class="questions-number">0</span> \
-                            <span>Questions</span> \
+                            <span>Preguntas</span> \
                         </button> \
                         <div class="btn-group btn-group-transcript"> \
                             <button class="btn btn-transcript btn-modal"><i class="icon-search"></i></button> \
@@ -220,11 +220,11 @@ CS50.Video = function(options) {
                     <thead> \
                         <tr> \
                             <td class="video50-notifications-options" colspan=2> \
-                                <strong>Available Questions</strong> \
+                                <strong>Preguntas Disponibles</strong> \
                                 <input id="video50-notifications-auto" type="checkbox" /> \
-                                <label for="video50-notifications-auto">Automatically go to new questions</label> \
+                                <label for="video50-notifications-auto">Ir automaticamente a nuevas preguntas</label> \
                                 <input id="video50-notifications-all" type="checkbox" /> \
-                                <label for="video50-notifications-all">Show all questions for this video</label> \
+                                <label for="video50-notifications-all">Mostrar todas las preguntas para este video</label> \
                             </td> \
                         </tr> \
                     </thead> \

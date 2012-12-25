@@ -15,7 +15,7 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         video.options.checkUrl = video.options.survey50Url + '/survey/questions/check';
 
     // disable button while submitting
-    $(video.options.playerContainer).find('.btn-submit').attr('disabled', true).text('Submitting...');
+    $(video.options.playerContainer).find('.btn-submit').attr('disabled', true).text('Mandando...');
 
     // send answer to server
     $.ajax({
@@ -29,7 +29,7 @@ CS50.Video.Render.checkRemote = function(question, answer, video, callback) {
         success: function(response) {
             // inform the user if the response was correct
             CS50.Video.Render.displayCorrectness(response.correct, video);
-            $(video.options.playerContainer).find('.btn-submit').attr('disabled', false).text('Submit Response');
+            $(video.options.playerContainer).find('.btn-submit').attr('disabled', false).text('Mandar respuesta');
 
             // finish with this question
             callback.call(video, question.id, response.correct, {});
@@ -55,9 +55,9 @@ CS50.Video.Render.displayCorrectness = function(correct, video, $container) {
 
     // display message depending on correctness of answer
     if (correct)
-        var $message = $('<div class="alert alert-success"><strong>Correct!</strong></div>');       
+        var $message = $('<div class="alert alert-success"><strong>¡Correcto!</strong></div>');       
     else
-        var $message = $('<div class="alert alert-error">That\'s not the right answer, <strong>try again!</strong></div>');
+        var $message = $('<div class="alert alert-error">¡Esa no es la respuesta correcta, <strong>trata otra vez!</strong></div>');
 
     // display message
     $message.hide().appendTo($container).fadeIn('fast');
@@ -94,7 +94,7 @@ CS50.Video.Render.FreeResponse = function(video, container, data, callback, remo
     }, 1000);
 
     // create submit button, hidden by default
-    var $submit = $('<button class="btn btn-submit">Submit Response</button>').hide();
+    var $submit = $('<button class="btn btn-submit">Mandar respuesta</button>').hide();
     $container.append($submit);
 
     // when submit button is pressed, check the answer
@@ -174,7 +174,7 @@ CS50.Video.Render.MultipleChoice = function(video, container, data, callback, re
     });
 
     // create submit button, hidden by default
-    var $submit = $('<button class="btn btn-submit">Submit Response</button>').hide();
+    var $submit = $('<button class="btn btn-submit">Mandar respuesta</button>').hide();
 
     // add display questions
     $container.append($choices);
@@ -302,7 +302,7 @@ CS50.Video.Render.TrueFalse = function(video, container, data, callback, remote)
     // true/false is really just multiple choice
     CS50.Video.Render.MultipleChoice(video, container, {
         answer: data.answer,
-        choices: ['True', 'False'],
+        choices: ['Verdadero', 'Falso'],
         id: data.id,
         question: data.question,
         tags: data.tags,
